@@ -1,15 +1,11 @@
 from enum import Enum
 from typing import Any, Callable, Dict
 
-from src.infra.adapters.test_adapter import TestRepositoryAdapter
-
-
 class OutPortType(str, Enum):
-    TestRepository = "testRepository"
-
+    ...
 
 _out_port_factories: Dict[OutPortType, Callable[[], Any]] = {
-    OutPortType.TestRepository: lambda: TestRepositoryAdapter(),
+    
 }
 
 

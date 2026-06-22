@@ -1,15 +1,15 @@
 from typing import Any, Literal, Union, overload
 
-from src.domain.ports.in_ports import TestUseCasePort
-from src.domain.ports.out_ports import TestRepositoryPort
-from .adapter_injector import OutPortInjector, OutPortType
+from src.infra.adapters.workflow.engine import WorkflowEngine
+from .adapter_injector import OutPortType, OutPortInjector
 from .usecase_injector import InPortType, UseCaseInjector
 
 
+
 @overload
-def inject(dependency_type: Literal[InPortType.TestUseCase]) -> TestUseCasePort: ...
-@overload
-def inject(dependency_type: Literal[OutPortType.TestRepository]) -> TestRepositoryPort: ...
+def inject(dependency_type: Literal[InPortType.WorkFlowExcecutor]) -> WorkflowEngine: ...
+# @overload
+# def inject(dependency_type: Literal[OutPortType.TestAdapter]) -> TestAdapterPort: ...
 
 
 def inject(dependency_type: Union[InPortType, OutPortType]) -> Any:
