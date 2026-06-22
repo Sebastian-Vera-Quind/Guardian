@@ -13,7 +13,7 @@
       "id": 1,
       "name": "server_entry_point",
       "description": "Crear un punto de entrada para el servidor que maneje las solicitudes entrantes y dirija el tráfico a los módulos correspondientes.",
-      "status": "in_progress",
+      "status": "done",
       "acceptance": [
         "El servidor debe ser capaz de recibir solicitudes HTTP y enrutar correctamente a los módulos correspondientes.",
         "Debe existir un endpoint http `POST /manual-chat` que retorne un stream",
@@ -27,7 +27,7 @@
       "id": 2,
       "name": "workflow_start",
       "description": "Iniciar el flujo de trabajo para procesar las solicitudes entrantes.",
-      "status": "in_progress",
+      "status": "done",
       "acceptance": [
         "El flujo de trabajo debe iniciarse correctamente al recibir una solicitud.",
         "Debe definirse un contrato el cual el workflow se encargara de cumplir",
@@ -35,6 +35,24 @@
         "La respuesta del endpoint debe ser un stream con el status del workflow, incluyendo el nodo acatual, el estado (Error | In Progress | Done).",
         "El desarrollador se encargar de espesificar los campos de entrada del workflow",
         "El workflow es un grafo de langgraph, el cual se encargara de ejecutar los nodos segun las dependencias definidas en el grafo."
+      ],
+      "sdd": true
+    },
+    {
+      "id": 3,
+      "name": "loader_node",
+      "description": "Cargar los datos necesarios para el procesamiento del flujo de trabajo.",
+      "status": "spec_ready",
+      "acceptance": [
+        "El nodo incial del workflow debe ser capaz de cargar los datos necesarios para el procesamiento.",
+        "Puede leer el attributo files_content[], el cual contiene {\"path\": \"ruta/al/archivo\", \"content\": \"contenido del archivo\", \"extension\": \"py\"} y lo pasa al siguiente nodo del workflow.",
+        "Puede leer el attributo \"repository\", el cual contiene {\"url\": \"https://github.com/user/repo.git\", \"installation\": \"github-installation-code\", \"commit_sha\": \"commit-sha\", \"target\": \"branch-name or commit-sha\"} y lo pasa al siguiente nodo del workflow.",
+        "El nodo debe escribir en el estado el camino a tormar, de venir el atributo files_content[] debe escribir el atributo load_to=simple, de venir el atributo repository debe escribir el atributo load_to=clone.",
+        "Si llegan los dos atributos, files_content[] y repository, tomara el camino de repository y escribira en el estado load_to=clone.",
+        "De llegar el attributo files_content[] debe sanar el contenido de los archivos y eliminar lineas en blanco o archvios que no contengan codigo, y sobreescribir el atributo files_content[].",
+        "De llegar el attributo files_content[] debe contar la cantidad de lineas de codigo y escribir en el estado total_lines.",
+        "De llegar el attributo repository debe escribir el atributo metadata, el cual contiene (owner, author, commit_message, reponame).",
+        "Si en files_content[] llega un archivo con nombre .devcore-attribution.jsonl, lo extrae, verifica que sea un JSONL valido, y lo escribe en el estado como attributo ai_attribution_jsonl."
       ],
       "sdd": true
     }
