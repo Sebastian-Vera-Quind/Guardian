@@ -1,0 +1,42 @@
+{
+  "project": "Agentic Guardian",
+  "description": "Serivicio de revisión de código para agentes autónomos. El Guardian se encarga de revisar el código generado por los desarrolladores, asegurándose de que cumpla con los estándares de calidad y seguridad antes de ser implementado.",
+  "rules": {
+    "one_feature_at_a_time": true,
+    "require_test_to_close": true,
+    "requiere_aprove_spec_to_implement": true,
+    "valid_status": ["pending", "spec_ready", "in_progress", "done", "blocked"],
+    "sdd_required_when": "feature has \"sdd\": true"
+  },
+  "features": [
+    {
+      "id": 1,
+      "name": "server_entry_point",
+      "description": "Crear un punto de entrada para el servidor que maneje las solicitudes entrantes y dirija el tráfico a los módulos correspondientes.",
+      "status": "in_progress",
+      "acceptance": [
+        "El servidor debe ser capaz de recibir solicitudes HTTP y enrutar correctamente a los módulos correspondientes.",
+        "Debe existir un endpoint http `POST /manual-chat` que retorne un stream",
+        "Se debe validar que exista la cabezera `X-API-KEY` y que su valor sea igual una variable de entorno `GUARDIAN_API_KEY`",
+        "La respuesta del endpoint debe ser un stream de texto \"Hello, World!\".",
+        "Se debe utilizar el framework web FastAPI."
+      ],
+      "sdd": true
+    },
+    {
+      "id": 2,
+      "name": "workflow_start",
+      "description": "Iniciar el flujo de trabajo para procesar las solicitudes entrantes.",
+      "status": "in_progress",
+      "acceptance": [
+        "El flujo de trabajo debe iniciarse correctamente al recibir una solicitud.",
+        "Debe definirse un contrato el cual el workflow se encargara de cumplir",
+        "El endpoint `POST /manual-chat` debe iniciar un workflow que cumpla con el contrato definido",
+        "La respuesta del endpoint debe ser un stream con el status del workflow, incluyendo el nodo acatual, el estado (Error | In Progress | Done).",
+        "El desarrollador se encargar de espesificar los campos de entrada del workflow",
+        "El workflow es un grafo de langgraph, el cual se encargara de ejecutar los nodos segun las dependencias definidas en el grafo."
+      ],
+      "sdd": true
+    }
+  ]
+}
