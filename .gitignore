@@ -1,0 +1,57 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.dll
+*.egg
+*.egg-info/
+.eggs/
+
+# ---- Virtual Environments / Local env files ----
+.env
+.env.*
+!.env.example
+!.env.prod.example
+.venv/
+venv/
+env/
+.python-version
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+
+# ---- IDE / Editors ----
+.idea/
+.vscode/
+*.iml
+
+# ---- Testing / Lint / Coverage caches ----
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# ---- Build artifacts ----
+dist/
+build/
+site/
+
+# ---- Logs ----
+logs/
+*.log
+
+# ---- Data & volumes (e.g., Postgres) ----
+data/
+!data/.gitkeep
+
+# ---- Docker overrides ----
+docker-compose.override.yml
+
+# ---- Node (if any subprojects) ----
+node_modules/
