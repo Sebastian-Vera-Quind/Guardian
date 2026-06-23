@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
-from src.domain.models.state.repository import RepositoryMetadata
-from src.domain.ports.output.metadata.metadata_reader import MetadataReader
+from src.domain.models.state import RepositoryMetadata
+from src.domain.ports.output import MetadataReader
 
 
 class GithubMetadataReader(MetadataReader):
