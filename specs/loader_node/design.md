@@ -5,18 +5,21 @@
 El `loader_node` es el primer nodo del workflow LangGraph que orquesta la carga y sanitización de datos. Se implementa como una función async que recibe `AgentState` y retorna un diccionario con actualizaciones de estado, siguiendo el patrón establecido en la feature `workflow_start`.
 
 Integración en la arquitectura hexagonal:
-- **Domain** (`./domain/models/state/`): Usa modelos existentes `FileContent`, `RepositoryMetadata`, `AgentState`.
-- **Infra Adapter** (`./infra/adapters/workflow/nodes/`): Implementa `loader.py` con función `node_loader_task()`.
-- **Utility** (`./infra/helpers/sanitizer.py`): Servicio reutilizable de sanitización de código.
+- **Domain** (`./domain/models/state/`): Crear modelos `FileContent`, `RepositoryMetadata`, `AgentState`. Crear contrato para leer metadatos de repositorio.
+- **Infra Adapter** 
+  - (`./infra/adapters/workflow/nodes/`): Implementa `loader.py` con función `node_loader_task()`.
+  - (`./infra/adapters/github`): Implementar utilidades para extraer metadatos desde repositorio (owner, repo_name, commit_sha).
+- **Application** (`./application/loader/`): Servicio de utilidades para sanitización.
 
 ## Archivos a crear/modificar
 
 ### Nuevos archivos:
 
-1. `infra/adapters/workflow/nodes/loader.py` — Implementa función async `node_loader_task()` que orquesta la carga.
-2. `infra/helpers/sanitizer.py` — Clase `CodeSanitizer` con métodos para sanitizar líneas, contar código, validar JSONL.
-3. `infra/helpers/metadata_extractor.py` — Clase `MetadataExtractor` para extraer `owner`, `author_name`, `commit_message`, `repo_name` desde repositorio.
-4. `domain/models/errors/loader_errors.py` — Excepciones personalizadas: `LoaderNodeError`, `SanitizationError`, `MetadataExtractionError`, `InvalidJSONLError`.
+1. `domain/models/errors/loader_errors.py` — Excepciones personalizadas: `LoaderNodeError`, `SanitizationError`, `MetadataExtractionError`, `InvalidJSONLError`.
+2. `domain/ports/output/metadata/metadata_reader.py` — Contrato para leer metadatos de repositorio.
+3. `application/loader/sanitizer.py` — Implementa `CodeSanitizer` para sanitizar contenido de archivos.
+4. `infra/adapters/github/metadata_reader.py` — Implementa `MetadataReader` para extraer metadatos desde repositorio.
+5. `infra/adapters/workflow/nodes/loader.py` — Implementa función async `node_loader_task()` que orquesta la carga.
 
 ### Archivos existentes a modificar:
 
