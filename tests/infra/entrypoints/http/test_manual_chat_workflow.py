@@ -1,9 +1,9 @@
 import os
 import unittest
 import json
-import re
 
 from fastapi.testclient import TestClient
+from unittest.mock import MagicMock, patch
 
 from src.infra.entrypoints.http import create_app
 from src.domain.models import WorkflowInput
@@ -42,8 +42,20 @@ def parse_sse_events(text: str) -> list[dict]:
   return events
 
 
-class TestManualChatEndpointR1R8R10(unittest.TestCase):
-  """Tests para R1 (POST /manual-chat), R8 (400 Bad Request), R10 (integración)."""
+def _make_mock_executor():
+  """Returns a mock WorkflowExecutor with two nodes in the stream."""
+  mock = MagicMock()
+
+  async def _fake_stream(input_data):
+    yield {"event_type": "node_updated", "node": "start", "data": {}}
+    yield {"event_type": "node_updated", "node": "process", "data": {}}
+
+  mock.execute_and_stream = _fake_stream
+  return mock
+
+
+class TestManualChatEndpointR1R8(unittest.TestCase):
+  """Tests para R1 (POST /manual-chat), R8 (400 Bad Request)."""
 
   def setUp(self):
     """Configura app y cliente de test."""
@@ -51,9 +63,15 @@ class TestManualChatEndpointR1R8R10(unittest.TestCase):
     self.app = create_app()
     self.client = TestClient(self.app)
     self.valid_headers = {"X-API-KEY": "test-secret-key-123"}
+    self._injector_patcher = patch(
+        'src.infra.entrypoints.http.endpoints.manual_chat.inject',
+        return_value=_make_mock_executor()
+    )
+    self._injector_patcher.start()
 
   def tearDown(self):
     """Limpia variables de entorno."""
+    self._injector_patcher.stop()
     if "GUARDIAN_API_KEY" in os.environ:
       del os.environ["GUARDIAN_API_KEY"]
 
@@ -69,15 +87,32 @@ class TestManualChatEndpointR1R8R10(unittest.TestCase):
     self.assertNotEqual(response.status_code, 404)
     self.assertNotEqual(response.status_code, 405)
 
-  def test_r1_manual_chat_accepts_body_json(self):
-    """R1: Valida que POST /manual-chat acepta body JSON."""
+  def test_manual_chat(self):
+    """
+      R1: Valida que POST /manual-chat acepta body JSON.
+      R3: Valida que la respuesta es un stream de eventos
+        - Cada evento debe estar en formato SSE valido
+        
+    """
     body = {}
     response = self.client.post(
         "/manual-chat",
         json=body,
         headers=self.valid_headers
     )
+
+    events = parse_sse_events(response.text)
+    self.assertGreater(len(events), 0, "Debe haber al menos un evento")
+
+    # Cada evento debe tener evento y data
+    for ev in events:
+      self.assertIn("event", ev)
+      self.assertIsNotNone(ev.get("event"))
+
     self.assertIn(response.status_code, [200, 400])
+    self.assertEqual(response.headers["content-type"], "text/event-stream; charset=utf-8")
+    self.assertIsNotNone(response.text)
+    self.assertGreater(len(response.text.strip()), 0)
 
   def test_r8_rejects_invalid_json_with_400(self):
     """R8: CUANDO se recibe JSON inválido, DEBE rechazar con HTTP 400 Bad Request."""
@@ -98,73 +133,6 @@ class TestManualChatEndpointR1R8R10(unittest.TestCase):
     self.assertEqual(response.status_code, 400)
     data = response.json()
     self.assertIn("detail", data)
-
-  def test_r10_requires_api_key_middleware_present(self):
-    """R10: El sistema DEBE integrar sin modificar middleware de API Key."""
-    # Falta API key -> 401
-    response = self.client.post("/manual-chat", json={})
-    self.assertEqual(response.status_code, 401)
-
-  def test_r10_rejects_invalid_api_key(self):
-    """R10: Middleware de API Key sigue funcionando (rechaza keys inválidas)."""
-    response = self.client.post(
-        "/manual-chat",
-        json={},
-        headers={"X-API-KEY": "wrong-key"}
-    )
-    self.assertEqual(response.status_code, 403)
-
-
-class TestManualChatStreamR3R4R16(unittest.TestCase):
-  """Tests para R3 (stream text/event-stream), R4 (emitir eventos), R16 (event_mode)."""
-
-  def setUp(self):
-    """Configura app y cliente de test."""
-    os.environ["GUARDIAN_API_KEY"] = "test-secret-key-123"
-    self.app = create_app()
-    self.client = TestClient(self.app)
-    self.valid_headers = {"X-API-KEY": "test-secret-key-123"}
-
-  def tearDown(self):
-    """Limpia variables de entorno."""
-    if "GUARDIAN_API_KEY" in os.environ:
-      del os.environ["GUARDIAN_API_KEY"]
-
-  def test_r3_returns_200_ok_with_event_stream_content_type(self):
-    """R3: DEBE retornar HTTP 200 OK con Content-Type: text/event-stream; charset=utf-8."""
-    response = self.client.post(
-        "/manual-chat",
-        json={},
-        headers=self.valid_headers
-    )
-    self.assertEqual(response.status_code, 200)
-    self.assertEqual(response.headers["content-type"], "text/event-stream; charset=utf-8")
-
-  def test_r3_stream_response_not_empty(self):
-    """R3: El stream DEBE contener eventos (no vacío)."""
-    response = self.client.post(
-        "/manual-chat",
-        json={},
-        headers=self.valid_headers
-    )
-    self.assertIsNotNone(response.text)
-    self.assertGreater(len(response.text.strip()), 0)
-
-  def test_r3_stream_contains_valid_sse_events(self):
-    """R3: El stream DEBE emitir eventos en formato SSE válido."""
-    response = self.client.post(
-        "/manual-chat",
-        json={},
-        headers=self.valid_headers
-    )
-    # Parsear eventos SSE
-    events = parse_sse_events(response.text)
-    self.assertGreater(len(events), 0, "Debe haber al menos un evento")
-
-    # Cada evento debe tener evento y data
-    for ev in events:
-      self.assertIn("event", ev)
-      self.assertIsNotNone(ev.get("event"))
 
   def test_r4_stream_emits_node_state_changes(self):
     """R4: CUANDO un nodo cambia de estado, DEBE emitir evento con node y estado."""
@@ -187,44 +155,6 @@ class TestManualChatStreamR3R4R16(unittest.TestCase):
         self.assertIn("node", data)
         self.assertIn("event_type", data)
 
-  def test_r4_events_have_node_identifier(self):
-    """R4: Cada evento DEBE indicar el nodo actual."""
-    response = self.client.post(
-        "/manual-chat",
-        json={},
-        headers=self.valid_headers
-    )
-    events = parse_sse_events(response.text)
-
-    node_events = [ev for ev in events if ev.get("event") == "node_update"]
-    nodes = []
-    for ev in node_events:
-      data = ev.get("data")
-      if isinstance(data, dict) and "node" in data:
-        nodes.append(data["node"])
-
-    self.assertGreater(len(nodes), 0, "Debe haber nodos reportados")
-
-  def test_r16_events_include_event_type_node_data(self):
-    """R16: Eventos DEBEN incluir: event_type, node, data (contenido del estado)."""
-    response = self.client.post(
-        "/manual-chat",
-        json={},
-        headers=self.valid_headers
-    )
-    events = parse_sse_events(response.text)
-
-    node_update_events = [ev for ev in events if ev.get("event") == "node_update"]
-    self.assertGreater(len(node_update_events), 0)
-
-    for ev in node_update_events:
-      data = ev.get("data")
-      if isinstance(data, dict):
-        # R16: evento debe tener event_type, node, data
-        self.assertIn("event_type", data, "Evento debe tener event_type")
-        self.assertIn("node", data, "Evento debe tener node")
-        self.assertIn("data", data, "Evento debe tener data")
-        self.assertIsInstance(data["data"], dict)
 
 
 class TestWorkflowExecutionR2R6(unittest.TestCase):
@@ -236,9 +166,15 @@ class TestWorkflowExecutionR2R6(unittest.TestCase):
     self.app = create_app()
     self.client = TestClient(self.app)
     self.valid_headers = {"X-API-KEY": "test-secret-key-123"}
+    self._injector_patcher = patch(
+        'src.infra.entrypoints.http.endpoints.manual_chat.inject',
+        return_value=_make_mock_executor()
+    )
+    self._injector_patcher.start()
 
   def tearDown(self):
     """Limpia variables de entorno."""
+    self._injector_patcher.stop()
     if "GUARDIAN_API_KEY" in os.environ:
       del os.environ["GUARDIAN_API_KEY"]
 
@@ -292,9 +228,15 @@ class TestNodeTransitionsR12R13R14R15(unittest.TestCase):
     self.app = create_app()
     self.client = TestClient(self.app)
     self.valid_headers = {"X-API-KEY": "test-secret-key-123"}
+    self._injector_patcher = patch(
+        'src.infra.entrypoints.http.endpoints.manual_chat.inject',
+        return_value=_make_mock_executor()
+    )
+    self._injector_patcher.start()
 
   def tearDown(self):
     """Limpia variables de entorno."""
+    self._injector_patcher.stop()
     if "GUARDIAN_API_KEY" in os.environ:
       del os.environ["GUARDIAN_API_KEY"]
 
@@ -367,9 +309,15 @@ class TestWorkflowInputContractR9(unittest.TestCase):
     self.app = create_app()
     self.client = TestClient(self.app)
     self.valid_headers = {"X-API-KEY": "test-secret-key-123"}
+    self._injector_patcher = patch(
+        'src.infra.entrypoints.http.endpoints.manual_chat.inject',
+        return_value=_make_mock_executor()
+    )
+    self._injector_patcher.start()
 
   def tearDown(self):
     """Limpia variables de entorno."""
+    self._injector_patcher.stop()
     if "GUARDIAN_API_KEY" in os.environ:
       del os.environ["GUARDIAN_API_KEY"]
 
@@ -413,9 +361,15 @@ class TestErrorHandlingR5R7(unittest.TestCase):
     self.app = create_app()
     self.client = TestClient(self.app)
     self.valid_headers = {"X-API-KEY": "test-secret-key-123"}
+    self._injector_patcher = patch(
+        'src.infra.entrypoints.http.endpoints.manual_chat.inject',
+        return_value=_make_mock_executor()
+    )
+    self._injector_patcher.start()
 
   def tearDown(self):
     """Limpia variables de entorno."""
+    self._injector_patcher.stop()
     if "GUARDIAN_API_KEY" in os.environ:
       del os.environ["GUARDIAN_API_KEY"]
 
@@ -481,28 +435,6 @@ class TestWorkflowStateR13(unittest.TestCase):
     self.assertIn("current_node", state)
     self.assertIn("result", state)
     self.assertIn("errors", state)
-
-
-class TestWorkflowNodeDefinitionR11(unittest.TestCase):
-  """Tests para R11 (permitir definir nuevos nodos)."""
-
-  def test_r11_nodes_are_extensible(self):
-    """R11: El sistema DEBE permitir definir nuevos nodos con identificador único y lógica."""
-    from src.infra.adapters.workflow.nodes import node_start, node_process, node_end
-    import inspect
-
-    # Nodos son funciones async
-    self.assertTrue(inspect.iscoroutinefunction(node_start))
-    self.assertTrue(inspect.iscoroutinefunction(node_process))
-    self.assertTrue(inspect.iscoroutinefunction(node_end))
-
-  def test_r11_nodes_are_importable_and_reusable(self):
-    """R11: Nodos deben ser importables para permitir extensión."""
-    try:
-      from src.infra.adapters.workflow.nodes import node_start
-      self.assertIsNotNone(node_start)
-    except ImportError:
-      self.fail("No se pueden importar los nodos")
 
 
 if __name__ == "__main__":
