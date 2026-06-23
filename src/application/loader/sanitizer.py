@@ -1,5 +1,5 @@
 from typing import List
-from src.domain.models.state.file import FileContent
+from src.domain.models.util import FileContent
 
 
 class CodeSanitizer:

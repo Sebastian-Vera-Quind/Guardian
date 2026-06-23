@@ -1,7 +1,7 @@
 import json
 import logging
 from typing import List, Optional, Tuple
-from src.domain.models.state.file import FileContent
+from src.domain.models import FileContent
 
 logger = logging.getLogger(__name__)
 

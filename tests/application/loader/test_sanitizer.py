@@ -1,6 +1,6 @@
 import unittest
 from src.application.loader.sanitizer import CodeSanitizer
-from src.domain.models.state.file import FileContent
+from src.domain.models import FileContent
 
 
 class TestCodeSanitizerRemoveBlankLines(unittest.TestCase):

@@ -1,12 +1,12 @@
 from datetime import datetime, timezone
 
-from src.domain.models.state import RepositoryMetadata
+from src.domain.models import RepositoryMetadata, RepositoryInput
 from src.domain.ports.output import MetadataReader
 
 
 class GithubMetadataReader(MetadataReader):
 
-    def extract_from_repository(self, repo_data: dict) -> RepositoryMetadata:
+    def extract_from_repository(self, repo_data: RepositoryInput) -> RepositoryMetadata:
         url = repo_data.get("url", "")
         parts = url.rstrip('/').replace('.git', '').split('/')
         owner = parts[-2] if len(parts) >= 2 else "Unknown"

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.domain.models.state.repository import RepositoryMetadata
+from src.domain.models import RepositoryMetadata
 
 
 class MetadataReader(ABC):

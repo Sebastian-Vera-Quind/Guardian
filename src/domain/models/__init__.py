@@ -1,11 +1,12 @@
-from .workflow import WorkflowInput, WorkflowState, WorkflowEvent
+from .workflow import WorkflowInput, WorkflowState, WorkflowEvent, RepositoryInput
 
 
 class AgenticError(Exception):
     pass
 
 
-from .state import AgentState, FileContent, RepositoryMetadata
+from .state import AgentState
+from .util import FileContent, RepositoryMetadata
 from .errors import (
     LoaderNodeError,
     SanitizationError,
@@ -25,4 +26,5 @@ __all__ = [
     "SanitizationError",
     "MetadataExtractionError",
     "InvalidJSONLError",
+    "RepositoryInput",
 ]

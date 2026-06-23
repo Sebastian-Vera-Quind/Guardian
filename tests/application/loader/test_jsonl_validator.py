@@ -1,8 +1,7 @@
 import unittest
 import logging
-from unittest.mock import patch
 from src.application.loader.jsonl_validator import JSONLValidator
-from src.domain.models.state.file import FileContent
+from src.domain.models import FileContent
 
 
 class TestJSONLValidatorIsValidJsonl(unittest.TestCase):
