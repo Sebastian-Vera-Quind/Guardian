@@ -1,47 +1,38 @@
 import logging
 from typing import AsyncGenerator
 
-from langgraph.graph import StateGraph
+from langgraph.graph import END, START, StateGraph
 
 from src.domain.ports.input import WorkflowExecutor
-from src.infra.adapters.workflow.nodes import node_end, node_process, node_start
-from src.domain.models import WorkflowState, WorkflowEvent
+from src.infra.adapters.workflow.nodes import node_loader_task
+from src.domain.models import AgentState, WorkflowEvent
 
 logger = logging.getLogger(__name__)
-
-
 
 class WorkflowEngine(WorkflowExecutor):
   _instance = None
   _graph: StateGraph = None
 
   def __init__(self):
-    """Inicializa el engine y construye el grafo."""
     self._build()
 
   def _build(self):
     if self._graph is not None:
       logger.warning("Graph already built, skipping rebuild.")
       return
+
+    graph = StateGraph(AgentState)
+
+    graph.add_node("loader", node_loader_task)
     
-    graph = StateGraph(WorkflowState)
-
-    graph.add_node("start", node_start)
-    graph.add_node("process", node_process)
-    graph.add_node("end", node_end)
-
-    graph.add_edge("start", "process")
-    graph.add_edge("process", "end")
-
-    graph.set_entry_point("start")
-    graph.set_finish_point("end")
+    graph.add_edge(START, "loader")
+    graph.add_edge("loader", END)
 
     self._graph = graph.compile()
-    
+
   async def execute_and_stream(
-      self, input_data: WorkflowState
+      self, input_data: AgentState
   ) -> AsyncGenerator[WorkflowEvent, None]:
-    """Ejecuta grafo e itera eventos con astream()."""
     try:
       async for output in self._graph.astream(input_data):
         if isinstance(output, dict):
