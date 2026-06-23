@@ -12,7 +12,7 @@ from .errors import (
 )
 from .endpoints import manual_chat_router
 
-
+logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO").upper())
 logger = logging.getLogger(__name__)
 load_dotenv()
 

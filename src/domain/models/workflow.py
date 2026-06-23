@@ -1,13 +1,16 @@
-from pydantic import BaseModel
+from typing import Optional
+from uuid import UUID
+
 from typing_extensions import TypedDict
 
+from src.domain.models.util import FileContent, RepositoryInput
 
-class WorkflowInput(BaseModel):
+class WorkflowInput(TypedDict):
   """Contrato base para entrada del workflow."""
-
-  class Config:
-    extra = "forbid"
-
+  project_id: UUID
+  project_code: str
+  repository: Optional[RepositoryInput] = None
+  files_content: Optional[list[FileContent]] = None
 
 class WorkflowState(TypedDict):
   """Estado del StateGraph. Tipado estrictamente."""
@@ -17,9 +20,8 @@ class WorkflowState(TypedDict):
   result: dict | None
   errors: list[str]
 
-
 class WorkflowEvent(TypedDict):
   """Evento emitido durante ejecución del grafo."""
   event_type: str
   node: str
-  data: dict
+  data: Optional[dict] = None

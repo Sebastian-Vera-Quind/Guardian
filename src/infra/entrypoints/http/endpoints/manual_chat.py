@@ -32,15 +32,7 @@ async def event_stream(input_data: WorkflowInput) -> AsyncGenerator[str, None]:
     try:
       engine = inject(InPortType.WorkFlowExcecutor)
 
-      initial_state: WorkflowState = {
-          "user_input": input_data.user_input if hasattr(input_data, "user_input") else "",
-          "processing_state": "pending",
-          "current_node": "",
-          "result": None,
-          "errors": []
-      }
-
-      async for event in engine.execute_and_stream(initial_state):
+      async for event in engine.execute_and_stream(input_data):
         await q.put(("event", event))
     except Exception as exc:
       await q.put(("error", exc))
@@ -120,14 +112,12 @@ async def manual_chat(
   """
   try:
     body = await request.json()
-  except json.JSONDecodeError as e:
-    raise WorkflowValidationError(f"Invalid JSON: {str(e)}")
-
-  try:
     input_data = WorkflowInput(**body)
   except ValidationError as e:
-    logger.warning(f"Validation error: {str(e)}")
-    raise WorkflowValidationError(f"Invalid request body: {str(e)}")
+    logger.warning(f"Validation error: {str(e.errors())}")
+    raise WorkflowValidationError("Invalid request body")
+  except json.JSONDecodeError as e:
+    raise WorkflowValidationError("Invalid JSON")
 
   logger.info("Starting workflow execution")
 

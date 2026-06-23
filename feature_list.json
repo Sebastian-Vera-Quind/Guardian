@@ -42,7 +42,7 @@
       "id": 3,
       "name": "loader_node",
       "description": "Cargar los datos necesarios para el procesamiento del flujo de trabajo.",
-      "status": "spec_ready",
+      "status": "in_progress",
       "acceptance": [
         "El nodo incial del workflow debe ser capaz de cargar los datos necesarios para el procesamiento.",
         "Puede leer el attributo files_content[], el cual contiene {\"path\": \"ruta/al/archivo\", \"content\": \"contenido del archivo\", \"extension\": \"py\"} y lo pasa al siguiente nodo del workflow.",

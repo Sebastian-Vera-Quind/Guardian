@@ -1,26 +1,24 @@
-# Feature completada: workflow_start
+# Feature en curso: 3 — loader_node
 
-## Resumen final
+## Plan: tasks T1..T12 de specs/loader_node/tasks.md
 
-Recreación completa de tests y refactorización a patrón SSE para streaming de eventos. El endpoint `/manual-chat` ahora usa Server-Sent Events (SSE) con keepalives para evitar timeouts durante ejecuciones largas.
+### Estado actual
+
+Implementación completa. Pendiente de revisión.
 
 ### Tasks completadas
-- [x] Examinar estructura actual refactorizada
-- [x] Arreglar problemas de imports en 8 archivos
-- [x] Migración de StreamingResponse a EventSourceResponse (SSE)
-- [x] Implementación de asyncio.Queue para interleaving de eventos y keepalives
-- [x] Escribir tests nuevos que cubran R1-R16
-  - 27 tests en test_manual_chat_workflow.py
-  - 7 tests en test_http_app.py
-  - Todos los 34 tests pasan
-- [x] Actualizar specification para documentar SSE
-- [x] Documentar trazabilidad completa R<n> → tests
 
-## Cambios principales
-- Endpoint ahora emite SSE con eventos: `keepalive`, `node_update`, `complete`, `error`
-- Timeout configurable (5 min), keepalives cada 15 seg
-- Patrón de producer/consumer con asyncio.Queue
-- Content-Type: `text/event-stream; charset=utf-8`
-
-## Estado
-✅ COMPLETADO - 34/34 tests PASS, trazabilidad documentada en progress/impl_workflow_start.md
+- [x] T1: Excepciones en `domain/models/errors/loader_errors.py`
+- [x] T2: Contrato `MetadataReader` en `domain/ports/output/metadata/`
+- [x] Modelos de estado: `domain/models/state/` (FileContent, RepositoryMetadata, AgentState)
+- [x] Exportaciones actualizadas en `domain/models/__init__.py`
+- [x] T3: CodeSanitizer (application layer)
+- [x] T4: JSONLValidator (application layer)
+- [x] T5: GithubMetadataReader adapter (infra layer)
+- [x] T6: node_loader_task + nodes/base.py + nodes/__init__.py (conflicto estructural resuelto)
+- [x] T7: builder.py creado con loader como entry point
+- [x] T8: Tests de CodeSanitizer
+- [x] T9: Tests de JSONLValidator
+- [x] T10: Tests de GithubMetadataReader
+- [x] T11: Tests de node_loader_task
+- [x] T12: Tests de integración del grafo
