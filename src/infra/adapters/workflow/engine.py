@@ -5,7 +5,7 @@ from langgraph.graph import END, START, StateGraph
 
 from src.domain.ports.input import WorkflowExecutor
 from src.infra.adapters.workflow.nodes import node_loader_task
-from src.domain.models import AgentState, WorkflowEvent
+from src.domain.models import AgentState, WorkflowEvent, WorkflowInput
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +31,20 @@ class WorkflowEngine(WorkflowExecutor):
     self._graph = graph.compile()
 
   async def execute_and_stream(
-      self, input_data: AgentState
+      self, input_data: WorkflowInput
   ) -> AsyncGenerator[WorkflowEvent, None]:
+    state: AgentState = {
+      "project_code": input_data.get("project_code", ""),
+      "project_id": input_data.get("project_id"),
+      "repository": input_data.get("repository") or None,
+      "files_content": input_data.get("files_content") or None,
+    }
+    
+    if not state["project_code"] or not state["project_id"]:
+      raise ValueError("Missing required fields: project_code and project_id")
+    
     try:
-      async for output in self._graph.astream(input_data):
+      async for output in self._graph.astream(state):
         if isinstance(output, dict):
           for node_id, node_output in output.items():
             logger.info(f"Node {node_id} completed")

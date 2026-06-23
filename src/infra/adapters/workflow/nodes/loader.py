@@ -42,7 +42,7 @@ async def node_loader_task(state: AgentState) -> dict:
     repo_data = state.get("repository", {})
     try:
       metadata = _reader.extract_from_repository(repo_data)
-      result["metadata"] = metadata.model_dump()
+      result["metadata"] = metadata
     except Exception as e:
       logger.error("Failed to extract metadata: %s", e)
       raise MetadataExtractionError(str(e)) from e
