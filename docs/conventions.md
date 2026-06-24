@@ -10,6 +10,7 @@
 - **Strings**: Commillas dobles `"..."` siempre. Se debe utilizar f-strings para formatear, nada de `.format()` o concatenación con `+`.
 - **Logs**: Se debe utilizar el módulo `logging` para registrar eventos, nada de `print()`. Se deben usar los niveles de log adecuados (DEBUG, INFO, WARNING, ERROR, CRITICAL) y configurar el formato del log para incluir información relevante como timestamp y nivel de log.
 - **Idioma**: El código debe estar en inglés, incluyendo nombres de variables, funciones, clases y comentarios. Esto facilita la colaboración internacional y el mantenimiento a largo plazo del código.
+- **Tipado**: Se debe utilizar tipado estático con `typing` para todas las funciones y métodos, incluyendo parámetros y valores de retorno. Esto mejora la legibilidad y ayuda a detectar errores en tiempo de desarrollo. Se debe evitar al maximo el uso de `Any`, y preferir tipos más específicos. Se debe utilizar `Optional` para parámetros que pueden ser `None`, y `Union` para parámetros que pueden ser de varios tipos.
 
 ## Nombres
 | **Tipo**    | **Convención** | **Ejemplo**     |

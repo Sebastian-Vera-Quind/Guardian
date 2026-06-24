@@ -21,3 +21,4 @@ El modulo `./src/infra/adapters/workflow`, es principalmente el nucleo de la apl
 - **Entrada y salida estandarizada**: Cada nodo recibe una entrada estandarizada (por ejemplo, un diccionario o un objeto de datos) y produce una salida estandarizada. Esto permite encadenar nodos de manera flexible.
 - **Unica Responsabilidad**: Los nodos orquetan tareas sin logica de negocio, y delegan la logica de negocio a los servicios de application. 
 - **Trazabilidad**: Cada nodo debe estar decorado con la funcion `@with_logging()`, definida en `./src/infra/adapters/workflow/log.py`, para asegurar que cada paso del workflow sea trazable y auditable. Esto facilita la depuración y el monitoreo del flujo de ejecución.
+- **Estado**: Cada nodo recibe un estado (AgentState) y devuelve un estado actualizado del mismo tipo. Esto permite mantener el contexto a lo largo del flujo de trabajo y facilita la comunicación entre nodos.
