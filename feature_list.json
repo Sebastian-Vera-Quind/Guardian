@@ -127,6 +127,18 @@
 
       ],
       "sdd": true
+    },
+    {
+      "id": 5,
+      "name": "api_response",
+      "description": "Actualizar la respuesta del endpoint /manual-chat cuando el flujo de trabajo haya terminado.",
+      "status": "pending",
+      "acceptance": [
+        "Actualmente los eventos del workflow se envian al endpoint /manual-chat solo retornan event_type y node.",
+        "Se debe cambiar para que retorne unicamente \"status\": \"error\" | \"in_pogress\" | \"success\", y el node actual.",
+        "Unicamente cuando el status sea \"success\" se debe retornar el attributo \"result\", el cual debe contener la información del estado."
+      ],
+      "sdd": false
     }
   ]
 }
