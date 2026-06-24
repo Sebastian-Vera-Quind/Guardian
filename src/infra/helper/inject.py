@@ -1,15 +1,22 @@
 from __future__ import annotations
 from typing import Any, Literal, Union, overload
 
-from src.domain.ports.input import WorkflowExecutor
-from src.domain.ports.output import MetadataReader
+from src.domain.ports.input import WorkflowExecutor, CloneService
+from src.domain.ports.output import (
+  MetadataReader,
+  RepositoryCloner,
+)
 from .adapter_injector import OutPortType, OutPortInjector
 from .usecase_injector import InPortType, UseCaseInjector
 
 @overload
 def inject(dependency_type: Literal[InPortType.WorkFlowExcecutor]) -> WorkflowExecutor: ...
 @overload
+def inject(dependency_type: Literal[InPortType.CloneService]) -> CloneService: ...
+@overload
 def inject(dependency_type: Literal[OutPortType.MetadataReader]) -> MetadataReader: ...
+@overload
+def inject(dependency_type: Literal[OutPortType.RepositoryCloner]) -> RepositoryCloner: ...
 
 
 def inject(dependency_type: Union[InPortType, OutPortType]) -> Any:

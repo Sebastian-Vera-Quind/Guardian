@@ -3,15 +3,19 @@ from typing import Any, Callable, Dict
 
 class OutPortType(str, Enum):
   MetadataReader = "metadata_reader"
+  RepositoryCloner = "repository_cloner"
 
 def _create_metadata_reader() -> Any:
   from src.infra.adapters.github import GithubMetadataReader
   return GithubMetadataReader()
-  
 
+def _create_repository_cloner() -> Any:
+  from src.infra.adapters.git import GitRepositoryCloner
+  return GitRepositoryCloner()
 
 _out_port_factories: Dict[OutPortType, Callable[[], Any]] = {
   OutPortType.MetadataReader: _create_metadata_reader,
+  OutPortType.RepositoryCloner: _create_repository_cloner,
 }
 
 

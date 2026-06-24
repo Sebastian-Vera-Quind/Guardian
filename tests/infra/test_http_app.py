@@ -39,22 +39,19 @@ class TestHTTPApp(unittest.TestCase):
     response = client.post("/manual-chat", headers=headers)
     self.assertEqual(response.status_code, 403)
 
-  def test_manual_chat_valid_api_key_returns_stream(self):
-    app = create_app()
-    client = TestClient(app)
-
-    headers = {"X-API-KEY": "test-secret-key-123"}
-    response = client.post("/manual-chat", json={}, headers=headers)
-
-    self.assertEqual(response.status_code, 200)
-    self.assertIsNotNone(response.text)
-
   def test_manual_chat_post_method(self):
     app = create_app()
     client = TestClient(app)
 
     headers = {"X-API-KEY": "test-secret-key-123"}
-    response = client.post("/manual-chat", json={}, headers=headers)
+    response = client.post("/manual-chat", json={
+        "project_code": "test-project",
+        "project_id": "00000000-0000-0000-0000-000000000000",
+        "repository": {
+          "url": "https://github.com/acme/my-repo.git"
+        }
+      }, headers=headers
+    )
 
     self.assertEqual(response.status_code, 200)
     self.assertIsNotNone(response.text)

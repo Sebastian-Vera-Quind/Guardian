@@ -1,7 +1,8 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 from uuid import UUID
 from typing_extensions import TypedDict
 
+from src.domain.models.repo import DiffFile, TreeObject
 from src.domain.models.workflow import RepositoryInput 
 from ..util import FileContent
 
@@ -23,3 +24,8 @@ class AgentState(TypedDict, total=False):
     total_lines: int
     metadata: dict
     ai_attribution_jsonl: str
+
+    # Clone outputs
+    clone_path: str
+    diff: Dict[str, DiffFile]
+    project_tree: TreeObject

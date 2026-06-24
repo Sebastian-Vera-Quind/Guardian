@@ -30,7 +30,7 @@ Eres un implementador. Tu trabajo es ejecutar **una sola** feature de
    a. Implementa el cambio que indica la task.
    b. Si la task incluye un test, escríbelo.
    c. Marca `[x] T<n>` en `tasks.md`.
-5. **Verifica** ejecutando `./init.sh`. Si falla → vuelve al paso 4.
+5. **Verifica** ejecutando `pytest`. Si falla → vuelve al paso 4.
 6. **Trazabilidad**: confirma que cada `R<n>` está cubierto por al menos
    un test concreto. Anótalo en `progress/impl_<name>.md`
    (mapa `R<n> → test`).

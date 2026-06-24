@@ -7,11 +7,22 @@ class AgenticError(Exception):
 
 from .state import AgentState
 from .util import FileContent, RepositoryMetadata
+from .repo import (
+    DiffFile,
+    ChangeType,
+    DiffContent,
+    TreeObject,
+    TreeObjectType,
+)
 from .errors import (
     LoaderNodeError,
     SanitizationError,
     MetadataExtractionError,
     InvalidJSONLError,
+    ClonePathError,
+    CheckoutError,
+    DiffGenerationError,
+    GitOperationError,
 )
 
 __all__ = [
@@ -26,5 +37,14 @@ __all__ = [
     "SanitizationError",
     "MetadataExtractionError",
     "InvalidJSONLError",
+    "ClonePathError",
+    "CheckoutError",
+    "DiffGenerationError",
+    "GitOperationError",
     "RepositoryInput",
+    "DiffFile",
+    "ChangeType",
+    "DiffContent",
+    "TreeObject",
+    "TreeObjectType",
 ]

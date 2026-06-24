@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from langgraph.graph import END, START, StateGraph
 
 from src.domain.ports.input import WorkflowExecutor
-from src.infra.adapters.workflow.nodes import node_loader_task
+from src.infra.adapters.workflow.nodes import node_loader_task, node_clone_task
 from src.domain.models import AgentState, WorkflowEvent, WorkflowInput
 
 logger = logging.getLogger(__name__)
@@ -24,9 +24,11 @@ class WorkflowEngine(WorkflowExecutor):
     graph = StateGraph(AgentState)
 
     graph.add_node("loader", node_loader_task)
-    
+    graph.add_node("clone_path", node_clone_task)
+
     graph.add_edge(START, "loader")
-    graph.add_edge("loader", END)
+    graph.add_edge("loader", "clone_path")
+    graph.add_edge("clone_path", END)
 
     self._graph = graph.compile()
 

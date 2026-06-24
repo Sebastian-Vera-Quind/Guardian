@@ -4,15 +4,24 @@ from typing import Any, Callable, Dict
 
 class InPortType(str, Enum):
   WorkFlowExcecutor = "workflow_executor"
+  CloneService = "clone_service"
 
 
 def _create_workflow_engine() -> Any:
   from src.infra.adapters.workflow.engine import WorkflowEngine
   return WorkflowEngine()
 
+def _create_clone_service() -> Any:
+  from src.application.clone import CloneService
+  from src.infra.helper import inject, OutPortType
+
+  repository_cloner = inject(OutPortType.RepositoryCloner)
+  return CloneService(repository_cloner)
+
 
 _in_port_factories: Dict[InPortType, Callable[[], Any]] = {
   InPortType.WorkFlowExcecutor: _create_workflow_engine,
+  InPortType.CloneService: _create_clone_service,
 }
 
 
