@@ -42,7 +42,7 @@
       "id": 3,
       "name": "loader_node",
       "description": "Cargar los datos necesarios para el procesamiento del flujo de trabajo.",
-      "status": "in_progress",
+      "status": "done",
       "acceptance": [
         "El nodo incial del workflow debe ser capaz de cargar los datos necesarios para el procesamiento.",
         "Puede leer el attributo files_content[], el cual contiene {\"path\": \"ruta/al/archivo\", \"content\": \"contenido del archivo\", \"extension\": \"py\"} y lo pasa al siguiente nodo del workflow.",
@@ -53,6 +53,78 @@
         "De llegar el attributo files_content[] debe contar la cantidad de lineas de codigo y escribir en el estado total_lines.",
         "De llegar el attributo repository debe escribir el atributo metadata, el cual contiene (owner, author, commit_message, reponame).",
         "Si en files_content[] llega un archivo con nombre .devcore-attribution.jsonl, lo extrae, verifica que sea un JSONL valido, y lo escribe en el estado como attributo ai_attribution_jsonl."
+      ],
+      "sdd": true
+    },
+    {
+      "id": 4,
+      "name": "clone_path",
+      "description": "Clonar el repositorio especificado en la solicitud entrante.",
+      "status": "done",
+      "acceptance": [
+        "Una vez que el nodo de carga determine el camino a tomar, si load_to=clone, debe clonarse el repositorio.",
+        "Si en la configuracion del repositorio, viene el attributo installation, significa que es un repositorio privado, y se debe autenticar con el token de instalacion de github.",
+        "El repositorio debe clonarse en un directorio temporal, el nombre del directorio debe ser un UUID unico, y debe escribirse en el estado como attributo clone_path.",
+        "Si el repositorio es publico, debe clonarse sin autenticacion.",
+        "Se debe hacer checkout al commit del estado espesificado en commit_sha",
+        "Si el atributo target viene espesificado, debe guardar en el estado el diff entre el commit espesificado en commit_sha y el target, y escribirlo en el estado como attributo diff.",
+        "El diff debe ser un json con la siguiente estructura:",
+        [
+          {
+            "/path/to/file": {
+              "is_new": false,
+              "is_deleted": false,
+              "additions": 10,
+              "deletions": 5,
+              "content": [
+                {
+                  "status": "added",
+                  "line_number": 1,
+                  "content": "print('Hello, World!');"
+                },
+                {
+                  "status": "modified",
+                  "line_number": 2,
+                  "content": "print('Hello, World!');"
+                },
+                {
+                  "status": "deleted",
+                  "line_number": 3,
+                  "content": "print('Hello, World!');"
+                }
+              ]
+            }
+          }
+        ],
+        "De haber un archivo .aiignore en el repositorio, debe respetarse y no incluir los archivos que coincidan con las reglas de .aiignore en el diff.",
+        "Se debe escribir en el estado un attributo modified_lines=int, el cual contenga la cantidad de lineas modificadas en el diff.",
+        "Se debe escribir un atributo project_tree, el cual contenga un arbol de directorios y archivos del proyecto, con la siguiente estructura:",
+        [
+          {
+            "name": "root",
+            "type": "directory",
+            "children": [
+              {
+                "name": "file1.py",
+                "type": "file"
+              },
+              {
+                "name": "subdir",
+                "type": "directory",
+                "children": [
+                  {
+                    "name": "file2.py",
+                    "type": "file",
+                    "is_new": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "Se deben omitir archivos binarios que no sean de codigo, como imágenes, videos, markdown, lock files, etc. y no incluirlos en el project_tree ni en el diff.",
+        "La ruta base donde se clonara el repositorio debe ser en /tmp/guardian."
+
       ],
       "sdd": true
     }

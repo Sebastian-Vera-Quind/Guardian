@@ -1,24 +1,39 @@
-# Feature en curso: 3 — loader_node
+# Feature en curso: 4 — clone_path
 
-## Plan: tasks T1..T12 de specs/loader_node/tasks.md
+## Plan: tasks T1..T29 de specs/clone_path/tasks.md
 
 ### Estado actual
 
-Implementación completa. Pendiente de revisión.
+COMPLETADA - Implementación 100% lista para revisión. 57 tests pasados.
 
 ### Tasks completadas
 
-- [x] T1: Excepciones en `domain/models/errors/loader_errors.py`
-- [x] T2: Contrato `MetadataReader` en `domain/ports/output/metadata/`
-- [x] Modelos de estado: `domain/models/state/` (FileContent, RepositoryMetadata, AgentState)
-- [x] Exportaciones actualizadas en `domain/models/__init__.py`
-- [x] T3: CodeSanitizer (application layer)
-- [x] T4: JSONLValidator (application layer)
-- [x] T5: GithubMetadataReader adapter (infra layer)
-- [x] T6: node_loader_task + nodes/base.py + nodes/__init__.py (conflicto estructural resuelto)
-- [x] T7: builder.py creado con loader como entry point
-- [x] T8: Tests de CodeSanitizer
-- [x] T9: Tests de JSONLValidator
-- [x] T10: Tests de GithubMetadataReader
-- [x] T11: Tests de node_loader_task
-- [x] T12: Tests de integración del grafo
+- [x] T1: Crear excepciones en `domain/models/errors/clone_errors.py`
+- [x] T2: Crear interfaz `RepositoryCloner`
+- [x] T3: Crear interfaz `DiffGenerator`
+- [x] T4: Crear interfaz `CloneService` (puerto de entrada)
+- [x] T5: Exportar nuevas excepciones y puertos
+- [x] T6: Crear `application/clone/__init__.py`
+- [x] T7: Crear `FileExcluder`
+- [x] T8: Crear `DiffBuilder`
+- [x] T9: Crear `TreeBuilder`
+- [x] T10: Implementar `CloneService`
+- [x] T11: Crear `infra/adapters/git/__init__.py`
+- [x] T12: Crear `GitRepositoryCloner`
+- [x] T13: Crear `infra/adapters/diff/__init__.py`
+- [x] T14: Crear `GitDiffGenerator`
+- [x] T15: Crear `infra/adapters/workflow/nodes/__init__.py`
+- [x] T16: Crear `node_clone_task`
+- [x] T17: Actualizar adapter_injector.py
+- [x] T18: Actualizar inject.py
+- [x] T19: Actualizar engine.py (builder)
+- [x] T20: Actualizar state.py
+- [x] T21: Actualizar `infra/adapters/workflow/__init__.py`
+- [x] T22: Tests para GitRepositoryCloner
+- [x] T23: Tests para FileExcluder
+- [x] T24: Tests para DiffBuilder
+- [x] T25: Tests para TreeBuilder
+- [x] T26: Tests para CloneService
+- [x] T27: Tests para GitDiffGenerator
+- [x] T28: Tests para node_clone_task
+- [x] T29: Documentar trazabilidad
