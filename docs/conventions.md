@@ -6,7 +6,7 @@
 - **Versión**: Python 3.10 o superior.
 - **PEP 8**: Con lineas de maximo 79 caracteres, con 2espacios por indentación, y sin espacios alrededor de los operadores de asignación.
 - **Imports**: librerias standard (stdlib) primero, luego librerias de terceros (third-party), y finalmente imports locales, cada grupo separado por una línea en blanco.
-- **Modulos**: Si se necesita exportar una función o clase, se debe agregar a `__init__.py` del paquete correspondiente, unicamente con las funciones o clases que se necesiten exportar, y no todo el modulo. Si no hay nada que exportar, no se debe crear el archivo.
+- **Modulos**: Si se necesita exportar una función o clase, se debe agregar a `__init__.py` del paquete correspondiente, unicamente con las funciones o clases que se necesiten exportar, y no todo el modulo. Si no hay nada que exportar, NO DEBE EXISTIR el archivo.
 - **Strings**: Commillas dobles `"..."` siempre. Se debe utilizar f-strings para formatear, nada de `.format()` o concatenación con `+`.
 - **Logs**: Se debe utilizar el módulo `logging` para registrar eventos, nada de `print()`. Se deben usar los niveles de log adecuados (DEBUG, INFO, WARNING, ERROR, CRITICAL) y configurar el formato del log para incluir información relevante como timestamp y nivel de log.
 - **Idioma**: El código debe estar en inglés, incluyendo nombres de variables, funciones, clases y comentarios. Esto facilita la colaboración internacional y el mantenimiento a largo plazo del código.
