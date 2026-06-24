@@ -40,10 +40,10 @@ async def node_clone_task(state: AgentState) -> AgentState:
       )
 
     repository = state.get("repository", {})
-    repo_url = repository.get("url")
-    installation_token = repository.get("installation")
-    commit_sha = repository.get("commit_sha")
-    target = repository.get("target")
+    repo_url = repository.get("url") if isinstance(repository, dict) else repository.url
+    installation_token = repository.get("installation") if isinstance(repository, dict) else repository.installation
+    commit_sha = repository.get("commit_sha") if isinstance(repository, dict) else repository.commit_sha
+    target = repository.get("target") if isinstance(repository, dict) else repository.target
 
     if not repo_url or not commit_sha:
       logger.error(
@@ -71,10 +71,11 @@ async def node_clone_task(state: AgentState) -> AgentState:
       target=target
     )
 
-    state["clone_path"] = result["clone_path"]
+    state["clone_path"] = result.get("clone_path")
     if "diff" in result:
       state["diff"] = result["diff"]
-    state["project_tree"] = result["project_tree"]
+    if "project_tree" in result:
+      state["project_tree"] = result["project_tree"]
 
     return state
 

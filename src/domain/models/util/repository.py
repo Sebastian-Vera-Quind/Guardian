@@ -31,6 +31,7 @@ class RepositoryInput(BaseModel):
   installation: Optional[str] = None
   commit_sha: Optional[str] = None
   target: Optional[str] = None
+  branch: Optional[str] = None
 
   def __getitem__(self, key: str):
     """Support dictionary-style subscript access for backwards compatibility."""

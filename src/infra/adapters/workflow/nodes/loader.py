@@ -23,10 +23,10 @@ def determine_load_route(state: AgentState) -> str:
 
 
 @with_logging()
-async def node_loader_task(state: AgentState) -> dict:
+async def node_loader_task(state: AgentState) -> AgentState:
   load_route = determine_load_route(state)
   _reader = inject(OutPortType.MetadataReader)
-  result: dict = {"load_to": load_route}
+  state["load_to"] = load_route
 
   if load_route == "simple":
     files_raw = list(state.get("files_content", []))
@@ -37,19 +37,20 @@ async def node_loader_task(state: AgentState) -> dict:
 
     files, attribution = JSONLValidator.extract_attribution_file(files)
     if attribution is not None:
-      result["ai_attribution_jsonl"] = attribution
+      state["ai_attribution_jsonl"] = attribution
 
     sanitized = CodeSanitizer.sanitize_files(files)
-    result["files_content"] = sanitized
-    result["total_lines"] = CodeSanitizer.count_lines(sanitized)
+    state["files_content"] = sanitized
+    state["total_lines"] = CodeSanitizer.count_lines(sanitized)
 
   elif load_route == "clone":
     repo_data = state.get("repository", {})
     try:
       metadata = _reader.extract_from_repository(repo_data)
-      result["metadata"] = metadata
+      state["metadata"] = metadata
     except Exception as e:
       logger.error("Failed to extract metadata: %s", e)
       raise MetadataExtractionError(str(e)) from e
+    state.pop("files_content", None)
 
-  return result
+  return state
