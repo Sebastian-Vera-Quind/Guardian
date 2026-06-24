@@ -1,6 +1,6 @@
 import unittest
 from src.infra.adapters.github.metadata_reader import GithubMetadataReader
-from domain.models.util import RepositoryMetadata
+from src.domain.models.util import RepositoryMetadata
 
 
 class TestGithubMetadataReaderExtractFromRepository(unittest.TestCase):
