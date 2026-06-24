@@ -2,13 +2,16 @@ from typing import Optional
 from uuid import UUID
 
 from typing_extensions import TypedDict
+from pydantic import BaseModel, ConfigDict
 
 from src.domain.models.util import FileContent, RepositoryInput
 
-class WorkflowInput(TypedDict):
+class WorkflowInput(BaseModel):
   """Contrato base para entrada del workflow."""
-  project_id: UUID
-  project_code: str
+  model_config = ConfigDict(extra="forbid")
+
+  project_id: Optional[UUID] = None
+  project_code: Optional[str] = None
   repository: Optional[RepositoryInput] = None
   files_content: Optional[list[FileContent]] = None
 

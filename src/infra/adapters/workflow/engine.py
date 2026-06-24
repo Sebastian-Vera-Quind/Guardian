@@ -36,12 +36,12 @@ class WorkflowEngine(WorkflowExecutor):
       self, input_data: WorkflowInput
   ) -> AsyncGenerator[WorkflowEvent, None]:
     state: AgentState = {
-      "project_code": input_data.get("project_code", ""),
-      "project_id": input_data.get("project_id"),
-      "repository": input_data.get("repository") or None,
-      "files_content": input_data.get("files_content") or None,
+      "project_code": input_data.project_code or "",
+      "project_id": input_data.project_id,
+      "repository": input_data.repository or None,
+      "files_content": input_data.files_content or None,
     }
-    
+
     if not state["project_code"] or not state["project_id"]:
       raise ValueError("Missing required fields: project_code and project_id")
     

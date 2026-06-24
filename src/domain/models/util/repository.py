@@ -1,9 +1,11 @@
 from typing import Optional
 from datetime import datetime
-from typing_extensions import TypedDict
+from dataclasses import dataclass, asdict
+from pydantic import BaseModel, ConfigDict
 
 
-class RepositoryMetadata(TypedDict):
+@dataclass
+class RepositoryMetadata(dict):
   owner: str
   repo_name: str
   branch: str = "main"
@@ -13,9 +15,23 @@ class RepositoryMetadata(TypedDict):
   commit_message: Optional[str] = None
   timestamp: Optional[datetime] = None
 
-class RepositoryInput(TypedDict):
+  def __post_init__(self):
+    """Initialize dict with dataclass fields."""
+    super().__init__(asdict(self))
+
+  def __getitem__(self, key: str):
+    """Support dictionary-style subscript access."""
+    return getattr(self, key)
+
+class RepositoryInput(BaseModel):
   """Entrada para información del repositorio."""
-  url: str  
+  model_config = ConfigDict(extra="forbid")
+
+  url: str
   installation: Optional[str] = None
-  commit_sha: str
-  target: str
+  commit_sha: Optional[str] = None
+  target: Optional[str] = None
+
+  def __getitem__(self, key: str):
+    """Support dictionary-style subscript access for backwards compatibility."""
+    return getattr(self, key, None)

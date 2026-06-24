@@ -2,6 +2,7 @@ import logging
 from src.infra.helper import inject, OutPortType
 from src.domain.models.state import AgentState
 from src.domain.models.errors import LoaderNodeError, MetadataExtractionError
+from src.domain.models import FileContent
 from src.application.loader import CodeSanitizer, JSONLValidator
 from src.infra.adapters.workflow.log import with_logging
 
@@ -28,7 +29,11 @@ async def node_loader_task(state: AgentState) -> dict:
   result: dict = {"load_to": load_route}
 
   if load_route == "simple":
-    files = list(state.get("files_content", []))
+    files_raw = list(state.get("files_content", []))
+    files = [
+      FileContent(**f) if isinstance(f, dict) else f
+      for f in files_raw
+    ]
 
     files, attribution = JSONLValidator.extract_attribution_file(files)
     if attribution is not None:
