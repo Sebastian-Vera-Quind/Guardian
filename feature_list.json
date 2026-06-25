@@ -132,11 +132,24 @@
       "id": 5,
       "name": "api_response",
       "description": "Actualizar la respuesta del endpoint /manual-chat cuando el flujo de trabajo haya terminado.",
-      "status": "pending",
+      "status": "done",
       "acceptance": [
         "Actualmente los eventos del workflow se envian al endpoint /manual-chat solo retornan event_type y node.",
         "Se debe cambiar para que retorne unicamente \"status\": \"error\" | \"in_pogress\" | \"success\", y el node actual.",
-        "Unicamente cuando el status sea \"success\" se debe retornar el attributo \"result\", el cual debe contener la información del estado."
+        "Unicamente cuando el status sea \"success\" se debe retornar el attributo \"result\", el cual debe contener la información del estado.",
+        "En cacaso de staus: \"error\" o \"in_progress\" no se debe retornar el attributo \"result\", unicamente el attributo \"status\" y \"node\"."
+      ],
+      "sdd": false
+    },
+    {
+      "id": 6,
+      "name": "tree_is_moddified_label",
+      "description": "Agregar una etiqueta al árbol de proyectos para indicar si ha sido modificado.",
+      "status": "pending",
+      "acceptance": [
+        "Actualemente el project_tree solo indica con el atributo is_new si un archivo es nuevo, pero no indica si un archivo ha sido modificado.",
+        "Se debe agregar un atributo is_modified a cada archivo en el project_tree, el cual indique si el archivo ha sido modificado en el diff.",
+        "El atributo is_modified debe ser un booleano, true si el archivo ha sido modificado, false si no ha sido modificado."
       ],
       "sdd": false
     }

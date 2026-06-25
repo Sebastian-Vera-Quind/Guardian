@@ -1,11 +1,15 @@
 import json
 import logging
 import asyncio
-from typing import AsyncGenerator
+from enum import Enum
+from json import JSONEncoder
+from datetime import datetime, date
+from typing import AsyncGenerator, Any
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import EventSourceResponse
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
 
 from src.infra.helper import inject, InPortType
 from src.domain.models import WorkflowInput, WorkflowState
@@ -13,6 +17,27 @@ from src.infra.entrypoints.http.middlewares import validate_api_key
 from src.infra.entrypoints.http.errors import WorkflowValidationError
 
 logger = logging.getLogger(__name__)
+
+
+class SafeJSONEncoder(JSONEncoder):
+    """Custom JSON encoder que maneja UUID, datetime, date, Enum, y Pydantic BaseModel."""
+
+    def default(self, obj):
+        if isinstance(obj, UUID):
+            return str(obj)
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        if isinstance(obj, Enum):
+            return obj.value
+        if isinstance(obj, BaseModel):
+            return obj.model_dump()
+        try:
+            return str(obj)
+        except Exception:
+            return None
+
+
+
 
 manual_chat_router = APIRouter(
   prefix="/manual-chat",
@@ -68,23 +93,41 @@ async def event_stream(input_data: WorkflowInput) -> AsyncGenerator[str, None]:
         # Error durante la ejecución
         raise payload
 
-      # Evento normal del workflow
+      # Evento del workflow
       ev = payload
-      event_data = {
-          "event_type": ev.get("event_type", "unknown"),
-          "node": ev.get("node", "unknown"),
-      }
-      yield f'event: node_update\ndata: {json.dumps(event_data)}\n\n'
+      event_type = ev.get("event_type", "unknown")
 
-    # Workflow completado
-    yield f'event: complete\ndata: {{"status": "success"}}\n\n'
+      if event_type == "complete":
+        # Evento de finalización con estado final
+        # SafeJSONEncoder maneja automáticamente UUID, datetime, date, y BaseModel
+        event_data = {
+            "status": "success",
+            "node": ev.get("node", "workflow"),
+            "result": ev.get("data", {})
+        }
+        yield f'event: complete\ndata: {json.dumps(event_data, cls=SafeJSONEncoder)}\n\n'
+      else:
+        # Evento de nodo en progreso
+        event_data = {
+            "status": "in_progress",
+            "node": ev.get("node", "unknown"),
+        }
+        yield f'event: node_update\ndata: {json.dumps(event_data, cls=SafeJSONEncoder)}\n\n'
 
   except asyncio.TimeoutError as e:
     logger.error(f"Workflow execution timeout: {str(e)}")
-    yield f'event: error\ndata: {json.dumps({{"detail": "Workflow timeout", "status": 504}})}\n\n'
+    event_data = {
+        "status": "error",
+        "node": "workflow",
+    }
+    yield f'event: error\ndata: {json.dumps(event_data, cls=SafeJSONEncoder)}\n\n'
   except Exception as e:
     logger.error(f"Workflow streaming error: {str(e)}", exc_info=True)
-    yield f'event: error\ndata: {json.dumps({{"detail": str(e), "status": 500}})}\n\n'
+    event_data = {
+        "status": "error",
+        "node": "workflow",
+    }
+    yield f'event: error\ndata: {json.dumps(event_data, cls=SafeJSONEncoder)}\n\n'
   finally:
     # Cancela el productor si sigue corriendo
     if not producer.done():
