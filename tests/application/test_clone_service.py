@@ -198,6 +198,129 @@ class TestCloneService(unittest.TestCase):
       tree_call_args = mock_tb.build_tree.call_args
       self.assertIsNotNone(tree_call_args[1].get("added_files_set"))
 
+  def test_clone_identifies_modified_files_from_diff(self):
+    """Test: clone identifica archivos modificados del diff."""
+    clone_dir = "/tmp/guardian/test-uuid"
+    self.mock_cloner.clone.return_value = clone_dir
+
+    def get_diff_side_effect(base_commit, target_commit, repo_path, callback):
+      callback("modified.py", {
+        "is_new": False,
+        "is_deleted": False,
+        "additions": 2,
+        "deletions": 1,
+        "content": []
+      })
+      callback("newfile.py", {
+        "is_new": True,
+        "is_deleted": False,
+        "additions": 10,
+        "deletions": 0,
+        "content": []
+      })
+      callback("deleted.py", {
+        "is_new": False,
+        "is_deleted": True,
+        "additions": 0,
+        "deletions": 5,
+        "content": []
+      })
+
+    self.mock_cloner.get_diff.side_effect = get_diff_side_effect
+
+    with patch("src.application.clone.clone_service.TreeBuilder") as mock_tb:
+      mock_tb.build_tree.return_value = {"name": "root", "type": "directory"}
+
+      result = self.service.clone(
+        "https://github.com/user/repo.git",
+        commit_sha="abc123",
+        target="def456"
+      )
+
+      # Verificar que TreeBuilder fue llamado con modified_files_set
+      tree_call_args = mock_tb.build_tree.call_args
+      modified_files = tree_call_args[1].get("modified_files_set")
+      self.assertIsNotNone(modified_files)
+      self.assertIn("modified.py", modified_files)
+      self.assertNotIn("newfile.py", modified_files)
+      self.assertNotIn("deleted.py", modified_files)
+
+  def test_clone_distinguishes_new_and_modified_files(self):
+    """Test: clone distingue archivos nuevos de modificados."""
+    clone_dir = "/tmp/guardian/test-uuid"
+    self.mock_cloner.clone.return_value = clone_dir
+
+    def get_diff_side_effect(base_commit, target_commit, repo_path, callback):
+      callback("new.py", {
+        "is_new": True,
+        "is_deleted": False,
+        "additions": 10,
+        "deletions": 0,
+        "content": []
+      })
+      callback("modified.py", {
+        "is_new": False,
+        "is_deleted": False,
+        "additions": 2,
+        "deletions": 1,
+        "content": []
+      })
+
+    self.mock_cloner.get_diff.side_effect = get_diff_side_effect
+
+    with patch("src.application.clone.clone_service.TreeBuilder") as mock_tb:
+      mock_tb.build_tree.return_value = {"name": "root", "type": "directory"}
+
+      result = self.service.clone(
+        "https://github.com/user/repo.git",
+        commit_sha="abc123",
+        target="def456"
+      )
+
+      tree_call_args = mock_tb.build_tree.call_args
+      added_files = tree_call_args[1].get("added_files_set")
+      modified_files = tree_call_args[1].get("modified_files_set")
+
+      self.assertIn("new.py", added_files)
+      self.assertNotIn("new.py", modified_files)
+      self.assertIn("modified.py", modified_files)
+      self.assertNotIn("modified.py", added_files)
+
+  def test_clone_ignores_deleted_files_from_modified(self):
+    """Test: archivos eliminados no se consideran modificados."""
+    clone_dir = "/tmp/guardian/test-uuid"
+    self.mock_cloner.clone.return_value = clone_dir
+
+    def get_diff_side_effect(base_commit, target_commit, repo_path, callback):
+      callback("deleted.py", {
+        "is_new": False,
+        "is_deleted": True,
+        "additions": 0,
+        "deletions": 5,
+        "content": []
+      })
+
+    self.mock_cloner.get_diff.side_effect = get_diff_side_effect
+
+    with patch("src.application.clone.clone_service.TreeBuilder") as mock_tb:
+      mock_tb.build_tree.return_value = {"name": "root", "type": "directory"}
+
+      result = self.service.clone(
+        "https://github.com/user/repo.git",
+        commit_sha="abc123",
+        target="def456"
+      )
+
+      tree_call_args = mock_tb.build_tree.call_args
+      modified_files = tree_call_args[1].get("modified_files_set")
+
+      # modified_files puede ser None o un set vacío
+      if modified_files is not None:
+        self.assertNotIn("deleted.py", modified_files)
+      else:
+        # Si es None, significa que no hay archivos modificados, lo cual es correcto
+        self.assertIsNone(modified_files)
+
 
 if __name__ == "__main__":
   unittest.main()

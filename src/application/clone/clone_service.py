@@ -67,12 +67,17 @@ class CloneService(CloneServicePort):
 
       diff: Dict[str, DiffFile] = {}
       added_files: Set[str] = set()
+      modified_files: Set[str] = set()
 
       if target:
         def diff_callback(file_path: str, diff_file: DiffFile):
           diff[file_path] = diff_file
           if diff_file["is_new"]:
             added_files.add(file_path)
+            return
+          if not diff_file["is_deleted"]:
+            # Un archivo modificado es aquel que no es nuevo y no fue eliminado
+            modified_files.add(file_path)
 
         self.repository_cloner.get_diff(
           base_commit=commit_sha,
@@ -85,7 +90,8 @@ class CloneService(CloneServicePort):
       project_tree = TreeBuilder.build_tree(
         clone_path,
         file_excluder,
-        added_files_set=added_files if added_files else None
+        added_files_set=added_files if added_files else None,
+        modified_files_set=modified_files if modified_files else None
       )
       result["project_tree"] = project_tree
       logger.info(f"Árbol del proyecto construido")

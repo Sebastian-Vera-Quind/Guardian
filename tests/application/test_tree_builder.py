@@ -58,7 +58,7 @@ class TestTreeBuilder(unittest.TestCase):
     tree = TreeBuilder.build_tree(
       self.repo_path,
       self.excluder,
-      added_files_set={new_file_path}
+      added_files_set={"new_file.py"}
     )
 
     def find_file(node, name):
@@ -73,6 +73,78 @@ class TestTreeBuilder(unittest.TestCase):
     new_file_node = find_file(tree, "new_file.py")
     if new_file_node:
       self.assertTrue(new_file_node.get("is_new", False))
+
+  def test_build_tree_marks_modified_files_correctly(self):
+    """Test: archivos modificados se marcan con is_modified=True."""
+    file1_path = os.path.join(self.repo_path, "file1.py")
+
+    tree = TreeBuilder.build_tree(
+      self.repo_path,
+      self.excluder,
+      modified_files_set={"file1.py"}
+    )
+
+    def find_file(node, name):
+      if node.get("name") == name:
+        return node
+      for child in node.get("children", []):
+        result = find_file(child, name)
+        if result:
+          return result
+      return None
+
+    modified_file_node = find_file(tree, "file1.py")
+    self.assertIsNotNone(modified_file_node)
+    self.assertTrue(modified_file_node.get("is_modified", False))
+
+  def test_build_tree_new_files_do_not_have_is_modified(self):
+    """Test: archivos nuevos no tienen is_modified (solo is_new)."""
+    new_file_path = os.path.join(self.repo_path, "new_file.py")
+    with open(new_file_path, "w") as f:
+      f.write("# new")
+
+    tree = TreeBuilder.build_tree(
+      self.repo_path,
+      self.excluder,
+      added_files_set={"new_file.py"}
+    )
+
+    def find_file(node, name):
+      if node.get("name") == name:
+        return node
+      for child in node.get("children", []):
+        result = find_file(child, name)
+        if result:
+          return result
+      return None
+
+    new_file_node = find_file(tree, "new_file.py")
+    self.assertIsNotNone(new_file_node)
+    self.assertTrue(new_file_node.get("is_new", False))
+    # Archivo nuevo no debería tener is_modified
+    self.assertNotIn("is_modified", new_file_node)
+
+  def test_build_tree_untracked_files_have_no_is_modified(self):
+    """Test: archivos no rastreados en diff no tienen is_modified."""
+    tree = TreeBuilder.build_tree(
+      self.repo_path,
+      self.excluder,
+      modified_files_set=set()
+    )
+
+    def find_file(node, name):
+      if node.get("name") == name:
+        return node
+      for child in node.get("children", []):
+        result = find_file(child, name)
+        if result:
+          return result
+      return None
+
+    file1_node = find_file(tree, "file1.py")
+    self.assertIsNotNone(file1_node)
+    # Archivo no rastreado en diff no debería tener is_modified
+    self.assertNotIn("is_modified", file1_node)
 
 
 if __name__ == "__main__":

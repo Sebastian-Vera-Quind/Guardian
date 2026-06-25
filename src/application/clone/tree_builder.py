@@ -15,7 +15,8 @@ class TreeBuilder:
   def build_tree(
     repo_path: str,
     file_excluder: FileExcluder,
-    added_files_set: Optional[Set[str]] = None
+    added_files_set: Optional[Set[str]] = None,
+    modified_files_set: Optional[Set[str]] = None
   ) -> TreeObject:
     """
     Construye árbol jerárquico del repositorio respetando exclusiones.
@@ -24,6 +25,7 @@ class TreeBuilder:
       repo_path: Ruta absoluta al repositorio
       file_excluder: Instancia de FileExcluder
       added_files_set: Set de rutas de archivos nuevos (para marcar is_new)
+      modified_files_set: Set de rutas de archivos modificados (para marcar is_modified)
 
     Returns:
       Dict con estructura jerárquica:
@@ -31,11 +33,14 @@ class TreeBuilder:
           "name": str,
           "type": "directory" | "file",
           "children": [...] (opcional, solo si es directorio),
-          "is_new": bool (opcional, solo si es archivo nuevo)
+          "is_new": bool (opcional, solo si es archivo nuevo),
+          "is_modified": bool (opcional, solo si el archivo fue modificado)
       }
     """
     if added_files_set is None:
       added_files_set = set()
+    if modified_files_set is None:
+      modified_files_set = set()
 
     def _traverse(path: str) -> TreeObject:
       """Recorre recursivamente el árbol."""
@@ -70,8 +75,12 @@ class TreeBuilder:
           node["children"] = children
 
       else:
-        if path in added_files_set:
+        # Convertir ruta absoluta a relativa para comparación con los sets
+        relative_path = os.path.relpath(path, repo_path)
+        if relative_path in added_files_set:
           node["is_new"] = True
+        if relative_path in modified_files_set:
+          node["is_modified"] = True
 
       return node
 

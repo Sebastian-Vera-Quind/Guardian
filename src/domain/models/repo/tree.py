@@ -12,4 +12,5 @@ class TreeObject(TypedDict):
   name: str
   type: TreeObjectType
   is_new: NotRequired[bool]
+  is_modified: NotRequired[bool]
   children: NotRequired[list["TreeObject"]]
