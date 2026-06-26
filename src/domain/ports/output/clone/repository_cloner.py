@@ -49,12 +49,14 @@ class RepositoryCloner(ABC):
   def get_diff(
     self,
     repo_path: str,
-    target_commit: str,
+    target_commit: Optional[str],
     callback: Callable[[str, DiffFile], None],
-    base_commit: Optional[str] = None, 
+    base_commit: Optional[str] = None,
   ) -> None:
     """
     Genera diff línea por línea entre dos commits y llama a call_back
     para cada archivo modificado.
+
+    Si target_commit es None, compara contra HEAD (working directory).
     """
     ...

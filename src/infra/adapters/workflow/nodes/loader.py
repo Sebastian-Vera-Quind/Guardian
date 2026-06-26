@@ -28,6 +28,24 @@ async def node_loader_task(state: AgentState) -> AgentState:
   _reader = inject(OutPortType.MetadataReader)
   state["load_to"] = load_route
 
+  # Establecer flags condicionales para enrutamiento
+  repository = state.get("repository", {})
+  has_commit_sha = bool(
+    repository.get("commit_sha")
+    if isinstance(repository, dict)
+    else getattr(repository, "commit_sha", None)
+  )
+  has_target = bool(
+    repository.get("target")
+    if isinstance(repository, dict)
+    else getattr(repository, "target", None)
+  )
+  has_files_content = bool(state.get("files_content"))
+
+  state["has_commit_sha"] = has_commit_sha
+  state["has_target"] = has_target
+  state["has_files_content"] = has_files_content
+
   if load_route == "simple":
     files_raw = list(state.get("files_content", []))
     files = [
