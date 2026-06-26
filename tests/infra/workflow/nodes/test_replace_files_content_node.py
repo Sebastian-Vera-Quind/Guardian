@@ -7,7 +7,7 @@ from src.infra.adapters.workflow.nodes.replace_files_content import (
 )
 
 
-class TestReplaceFilesContentNode(unittest.TestCase):
+class TestReplaceFilesContentNode(unittest.IsolatedAsyncioTestCase):
   """Tests para el nodo replace_files_content."""
 
   def setUp(self):

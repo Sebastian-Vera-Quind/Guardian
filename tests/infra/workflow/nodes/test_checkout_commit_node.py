@@ -7,7 +7,7 @@ from src.infra.adapters.workflow.nodes.checkout_commit import (
 )
 
 
-class TestCheckoutCommitNode(unittest.TestCase):
+class TestCheckoutCommitNode(unittest.IsolatedAsyncioTestCase):
   """Tests para el nodo checkout_commit."""
 
   def setUp(self):
@@ -86,7 +86,7 @@ class TestCheckoutCommitNode(unittest.TestCase):
     assert "Unexpected" in str(ctx.exception)
 
 
-class TestCheckoutCommitNodeWithObjectRepository(unittest.TestCase):
+class TestCheckoutCommitNodeWithObjectRepository(unittest.IsolatedAsyncioTestCase):
   """Tests con repository como objeto."""
 
   def setUp(self):
