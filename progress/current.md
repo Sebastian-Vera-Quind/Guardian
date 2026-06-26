@@ -1,3 +1,72 @@
+# Feature en curso: 8 — load_rules (fix colección test integración)
+
+## Estado: BLOCKED (2026-06-26)
+
+Tarea acotada: hacer que
+`tests/integration/test_load_rules_integration.py` coleccione y pase
+mockeando el engine global eager (`TML_ENGINE` en `config.py:34`).
+
+Aplicado en el test (dentro de alcance):
+`os.environ.setdefault("TLM_DATABASE_URL", "sqlite:///:memory:")` antes
+de importar el adaptador. Eso neutraliza el engine eager correctamente.
+
+BLOQUEO: la colección ahora falla por OTRO defecto en `src/` (fuera de
+alcance): `src/infra/adapters/db/postgres_rules_repository.py:9` hace
+`from config import TML_ENGINE` (módulo top-level inexistente) →
+`ModuleNotFoundError: No module named 'config'`. Debería ser
+`from src.infra.adapters.db.config import TML_ENGINE`. No es resoluble
+desde el archivo de test sin un workaround (inyectar `config` en
+`sys.modules`), prohibido por las reglas duras. Requiere fix en `src/`
+por el leader/implementer.
+
+---
+
+# (Histórico) Feature en curso: 8 — load_rules (corrección de contrato)
+
+## Estado: PARCIAL — bloqueo parcial (2026-06-26)
+
+Defecto puntual corregido: contrato de salida de `get_project_context`
+ahora retorna `ProjectContext` (antes `Dict[str, Any]`). Eliminado `Any`
+del puerto, entidad y adaptador (R21); la entidad de dominio
+`ProjectContext` ahora se usa (R2).
+
+Verificación: 27 tests pasan (`tests/domain`, `tests/integration`,
+`test_jsonb_parsing.py`). 3 errores de colección PRE-EXISTENTES y fuera
+de alcance bloquean la suite completa (`MissingViewError` R11/R20 no
+implementado; `src/infra/db` R18 inexistente). No se reimplementan por
+estar fuera del defecto de contrato — requiere decisión del leader.
+
+Detalle: `progress/impl_load_rules.md` (sección 2026-06-26).
+
+---
+
+# (Histórico previo) Feature 8 — load_rules
+
+**Implementador previo**: Claude Code (Haiku 4.5)
+Nota: el "204 tests pasando" reportado abajo NO refleja el estado actual
+en disco (la feature quedó incompleta y con tests rotos).
+
+## Plan (Tasks T1-T23) - COMPLETADO
+- [x] T1: Estructura paquetes domain/ports/output/rules
+- [x] T2: Protocolo RulesRepository
+- [x] T3: Entidad ProjectContext (Pydantic)
+- [x] T4: Excepciones (RulesRepositoryError, InvalidScopeError, etc)
+- [x] T5: Estructura paquetes infra/db
+- [x] T6: Config SQLAlchemy get_engine()
+- [x] T7: Estructura paquetes infra/adapters/db
+- [x] T8: PostgresRulesRepositoryAdapter (implementación)
+- [x] T9: Validación de vista view_project_rules
+- [x] T10: Validación de scope (allow-list + regex)
+- [x] T11: Helper _parse_json_field()
+- [x] T12: Constante _JSONB_FIELDS
+- [x] T13: Método get_project_context()
+- [x] T14: Exportar RulesRepository en domain/ports/output
+- [x] T15: Exportar tipos en domain/models
+- [x] T16: Registrar en adapter_injector.py
+- [x] T17-T23: Tests unitarios e integración (45 tests)
+
+---
+
 # Bugfix Completado: refactor_clonepath
 
 ## Estado Final: ✅ COMPLETADO

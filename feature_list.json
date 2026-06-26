@@ -275,6 +275,331 @@
         "Se deben actualizar los contratos en el puerto de CloneServicePort junto con su implementacion para desligar responsabilidades en diferentes metodos para ser usados por los nodos"
       ],
       "sdd": true
+    },
+    {
+      "id": 8,
+      "name": "load_rules",
+      "description": "Agregar capa de persistencia para base de datos TLM",
+      "status": "done",
+      "acceptance": [
+        "Ya existe una base de datos denominada guardian_db, con las siguientes tablas relevantes:",
+        [
+          {
+            "name": "projects",
+            "columns": [
+              {
+                "name": "id",
+                "type": "UUID",
+                "primary_key": true,
+                "nullable": false
+              },
+              {
+                "name": "org_id",
+                "type": "UUID",
+                "foreign_key": "organizations.id",
+                "nullable": true
+              },
+              {
+                "name": "name",
+                "type": "VARCHAR",
+                "nullable": false
+              },
+              {
+                "name": "code",
+                "type": "VARCHAR",
+                "nullable": false,
+                "unique": true
+              },
+              {
+                "name": "description",
+                "type": "VARCHAR",
+                "nullable": true
+              },
+              {
+                "name": "tech_stack_id",
+                "type": "UUID",
+                "foreign_key": "tech_stacks.id",
+                "nullable": true
+              },
+              {
+                "name": "structure_definition_id",
+                "type": "UUID",
+                "foreign_key": "structure_definitions.id",
+                "nullable": true
+              },
+              {
+                "name": "domain_definition_id",
+                "type": "UUID",
+                "foreign_key": "domain_definitions.id",
+                "nullable": true
+              },
+              {
+                "name": "infrastructure_definition_id",
+                "type": "UUID",
+                "foreign_key": "infrastructure_definitions.id",
+                "nullable": true
+              },
+              {
+                "name": "repo_url",
+                "type": "VARCHAR",
+                "nullable": true
+              },
+              {
+                "name": "default_branch",
+                "type": "VARCHAR",
+                "nullable": true
+              },
+              {
+                "name": "is_active",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "default": true
+              },
+              {
+                "name": "created_at",
+                "type": "TIMESTAMP WITH TIME ZONE",
+                "nullable": false,
+                "default": "now()"
+              },
+              {
+                "name": "updated_at",
+                "type": "TIMESTAMP WITH TIME ZONE",
+                "nullable": false,
+                "default": "now()"
+              },
+              {
+                "name": "nfr_definition",
+                "type": "JSONB",
+                "nullable": true
+              },
+              {
+                "name": "constraints",
+                "type": "JSONB",
+                "nullable": true
+              },
+              {
+                "name": "quality_gates",
+                "type": "JSONB",
+                "nullable": true
+              },
+              {
+                "name": "compliance_requirements",
+                "type": "JSONB",
+                "nullable": true
+              },
+              {
+                "name": "environments",
+                "type": "JSONB",
+                "nullable": true
+              },
+              {
+                "name": "fitness_functions",
+                "type": "JSONB",
+                "nullable": true
+              },
+              {
+                "name": "system_code",
+                "type": "VARCHAR(50)",
+                "nullable": true
+              },
+              {
+                "name": "workspace_type",
+                "type": "VARCHAR(20)",
+                "nullable": false,
+                "default": "single"
+              },
+              {
+                "name": "workspace_packages",
+                "type": "JSONB",
+                "nullable": true
+              },
+              {
+                "name": "additional_context",
+                "type": "TEXT",
+                "nullable": true
+              },
+              {
+                "name": "framework_enforcement_level",
+                "type": "VARCHAR(20)",
+                "nullable": false,
+                "default": "standard"
+              },
+              {
+                "name": "ignored_paths",
+                "type": "JSONB",
+                "nullable": true
+              },
+              {
+                "name": "module_path",
+                "type": "VARCHAR(255)",
+                "nullable": true
+              },
+              {
+                "name": "tracker_config",
+                "type": "JSONB",
+                "nullable": true
+              }
+            ]
+          },
+          {
+            "name": "use_cases",
+            "columns": [
+              {
+                "name": "id",
+                "type": "UUID",
+                "primary_key": true,
+                "nullable": false
+              },
+              {
+                "name": "domain_def_id",
+                "type": "UUID",
+                "foreign_key": "domain_definitions.id",
+                "nullable": false
+              },
+              {
+                "name": "code",
+                "type": "VARCHAR",
+                "nullable": false,
+                "unique": true
+              },
+              {
+                "name": "title",
+                "type": "VARCHAR",
+                "nullable": false
+              },
+              {
+                "name": "description",
+                "type": "VARCHAR",
+                "nullable": true
+              },
+              {
+                "name": "actor",
+                "type": "VARCHAR",
+                "nullable": true
+              },
+              {
+                "name": "acceptance_criteria",
+                "type": "JSONB",
+                "nullable": true
+              },
+              {
+                "name": "business_rules",
+                "type": "VARCHAR[]",
+                "nullable": true
+              },
+              {
+                "name": "exceptions",
+                "type": "VARCHAR[]",
+                "nullable": true
+              },
+              {
+                "name": "complexity",
+                "type": "VARCHAR",
+                "nullable": true,
+                "default": "MEDIUM"
+              },
+              {
+                "name": "is_active",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "default": true
+              },
+              {
+                "name": "created_at",
+                "type": "TIMESTAMP WITH TIME ZONE",
+                "nullable": false,
+                "default": "now()"
+              },
+              {
+                "name": "embedding",
+                "type": "VECTOR",
+                "nullable": true
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(20)",
+                "nullable": false,
+                "default": "pending"
+              },
+              {
+                "name": "in_progress_since",
+                "type": "TIMESTAMP WITH TIME ZONE",
+                "nullable": true
+              },
+              {
+                "name": "finish_governance_score",
+                "type": "INTEGER",
+                "nullable": true
+              },
+              {
+                "name": "closure_reason",
+                "type": "VARCHAR(40)",
+                "nullable": true,
+                "default": "governance_passed"
+              }
+            ]
+          },
+          {
+            "name": "checklists",
+            "columns": [
+              {
+                "name": "id",
+                "type": "UUID",
+                "primary_key": true,
+                "nullable": false
+              },
+              {
+                "name": "name",
+                "type": "VARCHAR",
+                "nullable": false
+              },
+              {
+                "name": "content",
+                "type": "VARCHAR",
+                "nullable": true
+              },
+              {
+                "name": "created_at",
+                "type": "TIMESTAMP WITH TIME ZONE",
+                "nullable": false,
+                "default": "now()"
+              },
+              {
+                "name": "updated_at",
+                "type": "TIMESTAMP WITH TIME ZONE",
+                "nullable": false,
+                "default": "now()"
+              },
+              {
+                "name": "use_case_id",
+                "type": "UUID",
+                "nullable": false,
+                "foreign_key": "use_cases.id"
+              },
+              {
+                "name": "embedding",
+                "type": "VECTOR",
+                "nullable": true
+              }
+            ]
+          }
+        ],
+        "Se debe crear un contrato para extraer la reglas del proyecto y sus casos de uso, y guardarlas en la base de datos guardian_db.",
+        "SQL de ejemplo: SELECT json_agg(cl.content) AS checklist FROM projects p JOIN use_cases uc ON uc.domain_def_id = p.domain_definition_id JOIN checklists cl ON cl.use_case_id = uc.id WHERE p.code = :project_code AND uc.status IN ('in_progress', 'done')",
+        "Se debe recuperar el contexto de forma incremental por alguno dee los siguientes scopes:",
+        {
+          "structure": "stack_tecnologico, estructura_directorios, project_name",
+          "domain": "reglas_dominio, lista_casos_uso",
+          "infrastructure": "specs_infraestructura, db_engines, api_types, messaging, patrones_diseno",
+          "review": "checklist, coding_standards",
+          "master": "*"
+        },
+        "El desarrollador proveera el DDL de una vista denominada view_project_rules, la cual contendra las reglas del proyecto y sus casos de uso, y se encargara de mantenerla actualizada. Si no es proporcionada, debe preguntarsele",
+        "No es necesario crear entidades por tabla, solo se crea la entidad para la respuesta del contrato.",
+        "Solo se necesita un metodo que retorne el contexto del proyecto",
+        "Se debe utilizar sqlalchemy para la persistencia de datos, y se debe crear un repositorio para interactuar con la base de datos guardian_db."
+      ],
+      "sdd": true
     }
   ]
 }
