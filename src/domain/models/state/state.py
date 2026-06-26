@@ -25,7 +25,16 @@ class AgentState(TypedDict, total=False):
     metadata: dict
     ai_attribution_jsonl: str
 
+    # Loader conditional flags (para enrutamiento)
+    has_commit_sha: bool
+    has_target: bool
+    has_files_content: bool
+
     # Clone outputs
     clone_path: str
     diff: Dict[str, DiffFile]
     project_tree: TreeObject
+    modified_lines: int
+
+    # Internal state for node orchestration
+    _replaced_files: set

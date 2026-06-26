@@ -130,15 +130,15 @@ class GitRepositoryCloner(RepositoryCloner):
   def get_diff(
     self,
     repo_path: str,
-    target_commit: str,
+    target_commit: Optional[str],
     callback: Callable[[str, DiffFile], None],
-    base_commit: Optional[str] = None, 
+    base_commit: Optional[str] = None,
   ) -> None:
     try:
       repo = Repo(repo_path)
       base = repo.commit(base_commit) if base_commit else repo.head.commit
       target = repo.commit(target_commit)
-      changes = target.diff(base, create_patch=True)
+      changes = target.diff(base, create_patch=True) if target_commit else base.diff(None,create_patch=True)
      
       for diff in changes.iter_change_type('M'):
         file_path = diff.b_path
