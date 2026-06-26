@@ -14,6 +14,7 @@ from .repo import (
     TreeObject,
     TreeObjectType,
 )
+from .project_context import ProjectContext, JsonValue
 from .errors import (
     LoaderNodeError,
     SanitizationError,
@@ -23,6 +24,9 @@ from .errors import (
     CheckoutError,
     DiffGenerationError,
     GitOperationError,
+    RulesRepositoryError,
+    InvalidScopeError,
+    ProjectContextNotFoundError,
 )
 
 __all__ = [
@@ -47,4 +51,9 @@ __all__ = [
     "DiffContent",
     "TreeObject",
     "TreeObjectType",
+    "JsonValue",
+    "ProjectContext",
+    "RulesRepositoryError",
+    "InvalidScopeError",
+    "ProjectContextNotFoundError",
 ]

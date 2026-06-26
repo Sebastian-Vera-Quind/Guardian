@@ -16,7 +16,8 @@ dependencies = [
     "python-dotenv (>=1.2.2,<2.0.0)",
     "gitpython (>=3.1.50,<4.0.0)",
     "pathspec (>=1.1.1,<2.0.0)",
-    "pytest-asyncio (>=1.4.0,<2.0.0)"
+    "pytest-asyncio (>=1.4.0,<2.0.0)",
+    "sqlalchemy (>=2.0.0,<3.0.0)"
 ]
 
 
