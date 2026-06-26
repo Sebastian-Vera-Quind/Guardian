@@ -124,7 +124,6 @@
         ],
         "Se deben omitir archivos binarios que no sean de codigo, como imágenes, videos, markdown, lock files, etc. y no incluirlos en el project_tree ni en el diff.",
         "La ruta base donde se clonara el repositorio debe ser en /tmp/guardian."
-
       ],
       "sdd": true
     },
@@ -145,13 +144,137 @@
       "id": 6,
       "name": "tree_is_moddified_label",
       "description": "Agregar una etiqueta al árbol de proyectos para indicar si ha sido modificado.",
-      "status": "pending",
+      "status": "done",
       "acceptance": [
         "Actualemente el project_tree solo indica con el atributo is_new si un archivo es nuevo, pero no indica si un archivo ha sido modificado.",
         "Se debe agregar un atributo is_modified a cada archivo en el project_tree, el cual indique si el archivo ha sido modificado en el diff.",
         "El atributo is_modified debe ser un booleano, true si el archivo ha sido modificado, false si no ha sido modificado."
       ],
       "sdd": false
+    },
+    {
+      "id": 7,
+      "name": "refactor_clonepath",
+      "description": "Actualizar la respuesta del endpoint /manual-chat cuando el flujo de trabajo haya terminado.",
+      "status": "done",
+      "acceptance": [
+        "Actualmente el nodo clonepath se encarga de cuatro tareas, clonar el repositorio, hacer checkout al commit espesificado, generar el diff y generar el project_tree.",
+        "Se deben desacoplar estas tareas y agregar nuevas funcionalidades relacionadas a el repositorio.",
+        "Se presentan los siguientes casos de entrada:",
+        [
+          {
+            "descripcion": "Se recibe files_content, y solo commit_sha",
+            "camino": [
+              "Se clona el repositorio",
+              "Se hace checkout al commit espesificado en commit_sha",
+              "Se remplaza el contenido de los archivos en files_content, si el archivo no existe, se crea, si existe, se remplaza el contenido",
+              "Se genera el diff y project_tree entre los cambios realizados y el commit espesificado en commit_sha"
+            ],
+            "ejemplo": {
+              "project_id": "00000000-0000-0000-0000-000000000000",
+              "project_code": "project-code",
+              "repository": {
+                "url": "https://github.com/user/repo.git",
+                "commit_sha": "commit_sha"
+              },
+              "files_content": [
+                {
+                  "path": "ruta/al/archivo",
+                  "content": "contenido del archivo",
+                  "extension": "py"
+                }
+              ]
+            }
+          },
+          {
+            "descripcion": "Se recibe files_content, repository sin target ni commit_sha",
+            "camino": [
+              "Se clona el repositorio",
+              "Se reemplaza el contenido de los archivos en files_content, si el archivo no existe, se crea, si existe, se remplaza el contenido",
+              "Se genera el diff y project_tree entre los cambios realizados y el head del repositorio"
+            ],
+            "ejemplo": {
+              "project_id": "00000000-0000-0000-0000-000000000000",
+              "project_code": "project-code",
+              "repository": {
+                "url": "https://github.com/user/repo.git"
+              },
+              "files_content": [
+                {
+                  "path": "ruta/al/archivo",
+                  "content": "contenido del archivo",
+                  "extension": "py"
+                }
+              ]
+            }
+          },
+          {
+            "descripcion": "Se recibe repository con target y commit_sha sin files_content",
+            "camino": [
+              "Se clona el repositorio",
+              "Se hace checkout al commit espesificado en commit_sha",
+              "Se genera el diff y project_tree entre commit_shay y target"
+            ],
+            "ejemplo": {
+              "project_id": "00000000-0000-0000-0000-000000000000",
+              "project_code": "project-code",
+              "repository": {
+                "url": "https://github.com/user/repo.git",
+                "target": "commit-sha",
+                "commit_sha": "commit-sha"
+              }
+            }
+          },
+          {
+            "descripcion": "Se recibe files_content, commit_sha y target",
+            "camino": [
+              "Se clona el repositorio",
+              "Se hace checkout al commit espesificado en commit_sha",
+              "Se reemplaza el contenido de los archivos en files_content, si el archivo no existe, se crea, si existe, se remplaza el contenido",
+              "Se genera el diff y project_tree entre (commit_sha + files_content) y target"
+            ],
+            "ejemplo": {
+              "project_id": "00000000-0000-0000-0000-000000000000",
+              "project_code": "project-code",
+              "repository": {
+                "url": "https://github.com/user/repo.git",
+                "target": "commit-sha",
+                "commit_sha": "commit-sha"
+              },
+              "files_content": [
+                {
+                  "path": "ruta/al/archivo",
+                  "content": "contenido del archivo",
+                  "extension": "py"
+                }
+              ]
+            }
+          }
+        ],
+        "Se debe eliminar el nodo clone_path y separar las funcionalidades en los siguientes nodos:",
+        [
+          {
+            "name": "clone_repository",
+            "description": "Clonar el repositorio espesificado en la solicitud entrante."
+          },
+          {
+            "name": "checkout_commit",
+            "description": "Hacer checkout al commit espesificado en la solicitud entrante."
+          },
+          {
+            "name": "replace_files_content",
+            "description": "Reemplazar el contenido de los archivos espesificados en files_content, si el archivo no existe, se crea, si existe, se remplaza el contenido."
+          },
+          {
+            "name": "generate_diff",
+            "description": "Generar el diff y project_tree entre los cambios realizados y el commit espesificado en la solicitud entrante."
+          }
+        ],
+        "Se debe actualizar el flujo de trabajo para que utilice los nuevos nodos en lugar del nodo clone_path.",
+        "Se deben agregar conditional edges para que el flujo de trabajo pueda tomar diferentes caminos dependiendo de los atributos recibidos en la solicitud entrante.",
+        "Se deben actualizar los contratos en el puerto de CloneServicePort junto con su implementacion para desligar responsabilidades en diferentes metodos para ser usados por los nodos"
+      ],
+      "sdd": true
     }
   ]
 }
