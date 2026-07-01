@@ -9,7 +9,8 @@ from src.infra.adapters.workflow.nodes import (
   node_clone_repository,
   node_checkout_commit,
   node_replace_files_content,
-  node_generate_diff
+  node_generate_diff,
+  node_rag_context,
 )
 from src.domain.models import AgentState, WorkflowEvent, WorkflowInput
 
@@ -35,6 +36,7 @@ class WorkflowEngine(WorkflowExecutor):
     graph.add_node("checkout_commit", node_checkout_commit)
     graph.add_node("replace_files_content", node_replace_files_content)
     graph.add_node("generate_diff", node_generate_diff)
+    graph.add_node("rag_context", node_rag_context)
 
     # Aristas y condicionales
     graph.add_edge(START, "loader")
@@ -43,7 +45,7 @@ class WorkflowEngine(WorkflowExecutor):
     def router_from_loader(state: AgentState):
       load_to = state.get("load_to")
       if load_to == "simple":
-        return END
+        return "rag_context"
       else:  # clone
         return "clone_repository"
 
@@ -80,8 +82,8 @@ class WorkflowEngine(WorkflowExecutor):
     # Después de replace_files_content, siempre generar diff
     graph.add_edge("replace_files_content", "generate_diff")
 
-    # Después de generate_diff, terminar
-    graph.add_edge("generate_diff", END)
+    graph.add_edge("generate_diff", "rag_context")
+    graph.add_edge("rag_context", END)
 
     self._graph = graph.compile()
 
