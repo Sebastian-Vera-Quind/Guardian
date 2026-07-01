@@ -16,6 +16,11 @@ from .rules_errors import (
     ProjectContextNotFoundError,
     RuleRetrievalError,
 )
+from .prompt_errors import (
+    PromptBuilderError,
+    UnknownPromptScopeError,
+    PromptRenderError,
+)
 
 __all__ = [
     "LoaderNodeError",
@@ -30,4 +35,7 @@ __all__ = [
     "InvalidScopeError",
     "ProjectContextNotFoundError",
     "RuleRetrievalError",
+    "PromptBuilderError",
+    "UnknownPromptScopeError",
+    "PromptRenderError",
 ]

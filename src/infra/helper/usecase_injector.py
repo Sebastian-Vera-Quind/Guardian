@@ -5,6 +5,7 @@ from src.domain.ports.input import (
   CloneService,
   WorkflowExecutor,
   ContextRetriever,
+  PromptBuilder,
 )
 
 
@@ -12,8 +13,14 @@ class InPortType(str, Enum):
   WorkFlowExcecutor = "workflow_executor"
   CloneService = "clone_service"
   ContextRetrievalService = "context_retrieval_service"
+  PromptBuilderService = "prompt_builder_service"
 
-_InPort = Union[WorkflowExecutor, CloneService, ContextRetriever]
+_InPort = Union[
+  WorkflowExecutor,
+  CloneService,
+  ContextRetriever,
+  PromptBuilder,
+]
 
 def _create_workflow_engine() -> WorkflowExecutor:
   from src.infra.adapters.workflow.engine import WorkflowEngine
@@ -46,10 +53,19 @@ def _create_context_retrieval_service() -> ContextRetriever:
   )
 
 
+def _create_prompt_builder_service() -> PromptBuilder:
+  from src.application.prompt import PromptBuilderService
+  from src.infra.helper.inject import inject, OutPortType
+
+  renderer = inject(OutPortType.PromptRenderer)
+  return PromptBuilderService(renderer)
+
+
 _in_port_factories: Dict[InPortType, Callable[[], _InPort]] = {
   InPortType.WorkFlowExcecutor: _create_workflow_engine,
   InPortType.CloneService: _create_clone_service,
   InPortType.ContextRetrievalService: _create_context_retrieval_service,
+  InPortType.PromptBuilderService: _create_prompt_builder_service,
 }
 
 

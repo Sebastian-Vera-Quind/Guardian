@@ -5,6 +5,7 @@ from src.domain.ports.input import (
   WorkflowExecutor,
   ContextRetriever,
   CloneService,
+  PromptBuilder,
 )
 from src.domain.ports.output import (
   MetadataReader,
@@ -15,6 +16,7 @@ from src.domain.ports.output import (
   VectorSearchRepository,
   CodingStandardsSearch,
   ProjectFieldsRepository,
+  PromptRenderer,
 )
 from .adapter_injector import OutPortType, OutPortInjector
 from .usecase_injector import InPortType, UseCaseInjector
@@ -34,6 +36,11 @@ def inject(
 def inject(
   dependency_type: Literal[InPortType.ContextRetrievalService],
 ) -> ContextRetriever: ...
+
+@overload
+def inject(
+  dependency_type: Literal[InPortType.PromptBuilderService],
+) -> PromptBuilder: ...
 
 @overload
 def inject(
@@ -77,12 +84,18 @@ def inject(
   dependency_type: Literal[OutPortType.ProjectFieldsRepository],
 ) -> ProjectFieldsRepository: ...
 
+@overload
+def inject(
+  dependency_type: Literal[OutPortType.PromptRenderer],
+) -> PromptRenderer: ...
+
 def inject(
   dependency_type: Union[InPortType, OutPortType],
 ) -> Union[
   WorkflowExecutor,
   CloneService,
   ContextRetriever,
+  PromptBuilder,
   MetadataReader,
   RepositoryCloner,
   RulesRepository,
@@ -91,6 +104,7 @@ def inject(
   VectorSearchRepository,
   CodingStandardsSearch,
   ProjectFieldsRepository,
+  PromptRenderer,
 ]:
   if dependency_type in OutPortType.__members__.values():
     return OutPortInjector.get_out_port(  # type: ignore[arg-type]

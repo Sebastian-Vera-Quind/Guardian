@@ -10,6 +10,7 @@ from src.domain.ports.output import (
   VectorSearchRepository,
   TlmClient,
   AIProvider,
+  PromptRenderer,
 )
 
 class OutPortType(str, Enum):
@@ -21,6 +22,7 @@ class OutPortType(str, Enum):
   VectorSearchRepository = "vector_search_repository"
   CodingStandardsSearch = "coding_standards_search"
   ProjectFieldsRepository = "project_fields_repository"
+  PromptRenderer = "prompt_renderer"
 
 _OutPort = Union[
   MetadataReader,
@@ -31,6 +33,7 @@ _OutPort = Union[
   VectorSearchRepository,
   CodingStandardsSearch,
   ProjectFieldsRepository,
+  PromptRenderer,
 ]
 
 
@@ -88,6 +91,11 @@ def _create_project_fields_repository() -> ProjectFieldsRepository:
   return ProjectFieldsRepositoryAdapter(tlm_client=tlm_client)
 
 
+def _create_prompt_renderer() -> PromptRenderer:
+  from src.infra.adapters.prompt import JinjaPromptRenderer
+  return JinjaPromptRenderer()
+
+
 _out_port_factories: Dict[OutPortType, Callable[[], _OutPort]] = {
   OutPortType.MetadataReader: _create_metadata_reader,
   OutPortType.RepositoryCloner: _create_repository_cloner,
@@ -97,6 +105,7 @@ _out_port_factories: Dict[OutPortType, Callable[[], _OutPort]] = {
   OutPortType.VectorSearchRepository: _create_vector_search_repository,
   OutPortType.CodingStandardsSearch: _create_coding_standards_search,
   OutPortType.ProjectFieldsRepository: _create_project_fields_repository,
+  OutPortType.PromptRenderer: _create_prompt_renderer,
 }
 
 
