@@ -12,7 +12,7 @@ from fastapi.responses import EventSourceResponse
 from pydantic import ValidationError, BaseModel
 
 from src.infra.helper import inject, InPortType
-from src.domain.models import WorkflowInput, WorkflowState
+from src.domain.models import WorkflowInput
 from src.infra.entrypoints.http.middlewares import validate_api_key
 from src.infra.entrypoints.http.errors import WorkflowValidationError
 
@@ -20,21 +20,21 @@ logger = logging.getLogger(__name__)
 
 
 class SafeJSONEncoder(JSONEncoder):
-    """Custom JSON encoder que maneja UUID, datetime, date, Enum, y Pydantic BaseModel."""
+  """Custom JSON encoder que maneja UUID, datetime, date, Enum, y Pydantic BaseModel."""
 
-    def default(self, obj):
-        if isinstance(obj, UUID):
-            return str(obj)
-        if isinstance(obj, (datetime, date)):
-            return obj.isoformat()
-        if isinstance(obj, Enum):
-            return obj.value
-        if isinstance(obj, BaseModel):
-            return obj.model_dump()
-        try:
-            return str(obj)
-        except Exception:
-            return None
+  def default(self, obj):
+    if isinstance(obj, UUID):
+      return str(obj)
+    if isinstance(obj, (datetime, date)):
+      return obj.isoformat()
+    if isinstance(obj, Enum):
+      return obj.value
+    if isinstance(obj, BaseModel):
+      return obj.model_dump()
+    try:
+      return str(obj)
+    except Exception:
+      return None
 
 
 
