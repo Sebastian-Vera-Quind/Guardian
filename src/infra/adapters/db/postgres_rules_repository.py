@@ -157,7 +157,7 @@ class PostgresRulesRepositoryAdapter(RulesRepository):
     # Construir query SQL con parámetros nombrados
     query_str = f"""
       SELECT {fields_list}
-      FROM view_project_rules
+      FROM view_project_master_context
       WHERE project_code = :project_code
     """
 
