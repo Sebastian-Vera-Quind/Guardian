@@ -6,6 +6,7 @@ from .ai.ai_provider import AIProvider
 from .tlm.tlm_client import TlmClient
 from .rag.vector_search_repository import VectorSearchRepository
 from .rag.coding_standards_search import CodingStandardsSearch
+from .prompt import PromptRenderer
 
 __all__ = [
     "MetadataReader",
@@ -16,4 +17,5 @@ __all__ = [
     "TlmClient",
     "VectorSearchRepository",
     "CodingStandardsSearch",
+    "PromptRenderer",
 ]
