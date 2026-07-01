@@ -10,6 +10,12 @@ from .clone_errors import (
     DiffGenerationError,
     GitOperationError,
 )
+from .rules_errors import (
+    RulesRepositoryError,
+    InvalidScopeError,
+    ProjectContextNotFoundError,
+    RuleRetrievalError,
+)
 
 __all__ = [
     "LoaderNodeError",
@@ -20,4 +26,8 @@ __all__ = [
     "CheckoutError",
     "DiffGenerationError",
     "GitOperationError",
+    "RulesRepositoryError",
+    "InvalidScopeError",
+    "ProjectContextNotFoundError",
+    "RuleRetrievalError",
 ]

@@ -7,7 +7,7 @@ from src.infra.adapters.workflow.nodes.generate_diff import (
 )
 
 
-class TestGenerateDiffNode(unittest.TestCase):
+class TestGenerateDiffNode(unittest.IsolatedAsyncioTestCase):
   """Tests para el nodo generate_diff."""
 
   def setUp(self):

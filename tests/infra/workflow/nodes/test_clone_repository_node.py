@@ -7,7 +7,7 @@ from src.infra.adapters.workflow.nodes.clone_repository import (
 )
 
 
-class TestCloneRepositoryNode(unittest.TestCase):
+class TestCloneRepositoryNode(unittest.IsolatedAsyncioTestCase):
   """Tests para el nodo clone_repository."""
 
   def setUp(self):
@@ -95,7 +95,7 @@ class TestCloneRepositoryNode(unittest.TestCase):
     assert "Unexpected" in str(ctx.exception)
 
 
-class TestCloneRepositoryNodeWithObjectRepository(unittest.TestCase):
+class TestCloneRepositoryNodeWithObjectRepository(unittest.IsolatedAsyncioTestCase):
   """Tests con repository como objeto (no dict)."""
 
   def setUp(self):
