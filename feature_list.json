@@ -600,6 +600,29 @@
         "Se debe utilizar sqlalchemy para la persistencia de datos, y se debe crear un repositorio para interactuar con la base de datos guardian_db."
       ],
       "sdd": true
+    },
+    {
+      "id": 9,
+      "name": "prompt_builder",
+      "description": "Servicio de construcción de prompts.",
+      "status": "done",
+      "acceptance": [
+        "Se debe crear un servicio que construya prompts para el agente",
+        "Se debe implementar un adaptador con metodo que pueda sanitizar el contenido y generar prompts para el agente",
+        "El adaptador debe utilizar jinja2 para construir los prompts",
+        "El adaptador debe tener un metodo generico que reciba un scope y attributos de entrada del tipo generico, y retorne un prompt construido",
+        "Los scopes de prompts son:",
+        [
+          "checklist",
+          "architecture",
+          "business_rules"
+        ],
+        "Los scopes deben estar en un enumerador definidos en capa de dominio.",
+        "El servicio debe ser capaz de construir prompts en base a los scopes y los attributos de entrada, y retornar el prompt construido.",
+        "El servicio tambien debe ser capaz de sanitizar el contenido de los attributos de entrada, eliminando caracteres especiales y lineas en blanco.",
+        "Tambien se debe disponer dde un m,etodo desde el servicio para construir prompts de forma generica recibiendo un string y un diccionario de attributos, y retornando un prompt construido."
+      ],
+      "sdd": true
     }
   ]
 }
