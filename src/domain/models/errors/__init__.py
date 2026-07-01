@@ -14,6 +14,7 @@ from .rules_errors import (
     RulesRepositoryError,
     InvalidScopeError,
     ProjectContextNotFoundError,
+    RuleRetrievalError,
 )
 
 __all__ = [
@@ -28,4 +29,5 @@ __all__ = [
     "RulesRepositoryError",
     "InvalidScopeError",
     "ProjectContextNotFoundError",
+    "RuleRetrievalError",
 ]

@@ -11,7 +11,7 @@ JsonValue = TypeAliasType(
     float,
     bool,
     None,
-    List["JsonValue"],
+    List["JsonValue"], # type: ignore
     Dict[str, "JsonValue"],
   ],
 )

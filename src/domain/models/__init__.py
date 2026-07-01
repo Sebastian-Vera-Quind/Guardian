@@ -27,7 +27,10 @@ from .errors import (
     RulesRepositoryError,
     InvalidScopeError,
     ProjectContextNotFoundError,
+    RuleRetrievalError,
 )
+from .project_fields import ProjectFields
+from .retrieved_context import RetrievedContext, SimilarStandard
 
 __all__ = [
     "WorkflowInput",
@@ -56,4 +59,8 @@ __all__ = [
     "RulesRepositoryError",
     "InvalidScopeError",
     "ProjectContextNotFoundError",
+    "RuleRetrievalError",
+    "ProjectFields",
+    "RetrievedContext",
+    "SimilarStandard",
 ]
